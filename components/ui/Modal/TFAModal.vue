@@ -55,7 +55,7 @@ const popupTitle = computed(() =>
 <template>
   <PopupBox
     :title="popupTitle"
-    box-width="408px"
+    box-width="380px"
     is-unclosable
     @close="closeModal"
   >
@@ -83,14 +83,12 @@ const popupTitle = computed(() =>
           <div class="tfa-modal__actions">
             <UiButton
               variant="neutral"
-              class="flex-1"
               @click="state.isRecoveryCodeNow.value = false"
             >
               {{ t('twoFactor.recovery.back') }}
             </UiButton>
             <UiButton
               variant="primary"
-              class="flex-1"
               :loading="isLoading"
               :disabled="!recoveryCode || recoveryCode.length < 6 || isLoading"
               @click="onComplete(recoveryCode)"
@@ -131,7 +129,6 @@ const popupTitle = computed(() =>
           <div class="tfa-modal__actions">
             <UiButton
               variant="neutral"
-              class="flex-1"
               :loading="isLoading"
               @click="closeModal"
             >
@@ -139,7 +136,6 @@ const popupTitle = computed(() =>
             </UiButton>
             <UiButton
               variant="primary"
-              class="flex-1"
               :disabled="isButtonDisabled || !!state.modalError.value"
               :loading="isLoading"
               @click="onComplete(pin)"
@@ -151,14 +147,15 @@ const popupTitle = computed(() =>
 
         <template v-else>
           <p class="tfa-modal__lead">{{ props.description }}</p>
-          <UiButton
-            variant="primary"
-            class="flex-1"
-            :loading="isLoading"
-            @click="closeModal"
-          >
-            {{ t('twoFactor.close') }}
-          </UiButton>
+          <div class="tfa-modal__actions">
+            <UiButton
+              variant="primary"
+              :loading="isLoading"
+              @click="closeModal"
+            >
+              {{ t('twoFactor.close') }}
+            </UiButton>
+          </div>
         </template>
       </div>
     </template>
@@ -181,10 +178,15 @@ const popupTitle = computed(() =>
   color: var(--hm-text);
 }
 
+/* Modal action row per DESIGN_MANIFEST § 14.4: right-aligned, 12px gap, mandatory
+   top divider separating content from actions. */
 .tfa-modal__actions {
   display: flex;
+  justify-content: flex-end;
   gap: 12px;
-  margin-top: 8px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--hm-border);
 }
 
 .tfa-modal__hint {

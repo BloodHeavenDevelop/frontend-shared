@@ -90,7 +90,7 @@ function clearInput() {
         @change="onFileChange"
       />
       <template v-if="!rawText">
-        <Icon
+        <UiAppIcon
           name="heroicons:arrow-up-tray"
           class="w-6 h-6 text-hm-muted mb-2"
         />
@@ -100,7 +100,7 @@ function clearInput() {
         </p>
       </template>
       <template v-else>
-        <Icon
+        <UiAppIcon
           name="heroicons:document-check"
           class="w-6 h-6 text-hm-ok mb-2"
         />
@@ -159,7 +159,7 @@ function clearInput() {
   justify-content: center;
   padding: 24px 16px;
   border-radius: 8px;
-  border: 2px dashed rgba(255, 255, 255, 0.12);
+  border: 2px dashed var(--hm-border);
   cursor: pointer;
   transition: all 0.15s;
   min-height: 110px;
@@ -171,23 +171,23 @@ function clearInput() {
 }
 
 .env-drop-zone--active {
-  border-color: rgba(0, 212, 255, 0.6);
-  background: rgba(0, 212, 255, 0.07);
+  border-color: var(--hm-accent);
+  background: rgba(0, 212, 255, 0.08);
 }
 
 .env-preview-list {
   max-height: 140px;
   overflow-y: auto;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--hm-border);
+  background: var(--hm-bg);
 }
 
 .env-preview-row {
   display: flex;
   align-items: center;
   padding: 4px 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--hm-border);
 }
 
 .env-preview-row:last-child {

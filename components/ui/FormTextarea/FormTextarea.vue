@@ -26,7 +26,8 @@ const globalBase = (appConfig.ui as Record<string, any>)?.textarea?.base || '';
 
 const mergedUi = computed(() => {
   const userBase = props.ui?.base || '';
-  const combinedBase = [globalBase, userBase].filter(Boolean).join(' ');
+  // DESIGN_MANIFEST § 10.5: textarea min-height 80px, vertical resize only.
+  const combinedBase = [globalBase, userBase, 'min-h-[80px] resize-y'].filter(Boolean).join(' ');
 
   return {
     ...props.ui,

@@ -35,8 +35,51 @@ const onDocumentClick = (e: MouseEvent) => {
   close();
 };
 
+const menuItems = () =>
+  Array.from(menuEl.value?.querySelectorAll<HTMLElement>('.hm-nav-dropdown__item') ?? []);
+
+const focusItem = (index: number) => {
+  const items = menuItems();
+  if (!items.length) return;
+  const i = (index + items.length) % items.length;
+  items[i]?.focus();
+};
+
+// § 16.5: ArrowDown from the trigger opens the menu and lands on the first item.
+const onTriggerKeyDown = (e: KeyboardEvent) => {
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    isOpen.value = true;
+    nextTick(() => focusItem(0));
+  }
+};
+
+// § 16.5: arrows cycle item focus, Escape returns focus to the trigger, Tab closes.
 const onKeyDown = (e: KeyboardEvent) => {
-  if (e.key === 'Escape' && isOpen.value) close();
+  if (!isOpen.value) return;
+  switch (e.key) {
+    case 'Escape':
+      e.preventDefault();
+      close();
+      triggerEl.value?.focus();
+      break;
+    case 'ArrowDown': {
+      e.preventDefault();
+      const items = menuItems();
+      focusItem(items.indexOf(document.activeElement as HTMLElement) + 1);
+      break;
+    }
+    case 'ArrowUp': {
+      e.preventDefault();
+      const items = menuItems();
+      const current = items.indexOf(document.activeElement as HTMLElement);
+      focusItem((current === -1 ? 0 : current) - 1);
+      break;
+    }
+    case 'Tab':
+      close();
+      break;
+  }
 };
 
 watch(isOpen, (v) => {
@@ -63,22 +106,14 @@ onBeforeUnmount(() => {
       class="hm-nav-link"
       :class="{ 'hm-nav-link--active': active || isOpen }"
       @click="toggle"
+      @keydown="onTriggerKeyDown"
     >
       {{ label }}
-      <svg
-        class="hm-nav-dropdown__chevron"
+      <UiAppIcon
+        name="chevron-down"
+        class="hm-nav-dropdown__chevron w-[10px] h-[10px]"
         :class="{ 'hm-nav-dropdown__chevron--open': isOpen }"
-        width="10"
-        height="10"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2.5"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      >
-        <polyline points="6 9 12 15 18 9" />
-      </svg>
+      />
     </button>
 
     <div
@@ -119,10 +154,13 @@ onBeforeUnmount(() => {
   top: calc(100% + 8px);
   right: 0;
   min-width: 200px;
+  max-height: 60vh;
+  overflow-y: auto;
   padding: 6px;
   background: var(--hm-surface);
   border: 1px solid var(--hm-border);
-  border-radius: 10px;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   display: flex;
   flex-direction: column;
   gap: 2px;

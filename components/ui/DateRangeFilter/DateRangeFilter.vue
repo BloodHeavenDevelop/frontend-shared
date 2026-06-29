@@ -191,7 +191,7 @@ const hasValue = computed(() => internal.value !== null);
 
 .hm-date-range-trigger--active {
   color: var(--hm-text);
-  border-color: rgba(0, 212, 255, 0.5);
+  border-color: rgba(0, 212, 255, 0.3);
 }
 
 .hm-date-range-trigger__label {
@@ -205,7 +205,7 @@ const hasValue = computed(() => internal.value !== null);
 }
 
 .hm-date-range-trigger__clear:hover {
-  background: rgba(0, 212, 255, 0.12);
+  background: rgba(0, 212, 255, 0.15);
 }
 
 .hm-date-range-presets {
@@ -250,7 +250,7 @@ const hasValue = computed(() => internal.value !== null);
   --dp-secondary-color: var(--hm-muted);
   --dp-border-color: var(--hm-border);
   --dp-menu-border-color: var(--hm-border);
-  --dp-border-color-hover: rgba(0, 212, 255, 0.4);
+  --dp-border-color-hover: rgba(0, 212, 255, 0.3);
   --dp-disabled-color: var(--hm-muted);
   --dp-scroll-bar-background: transparent;
   --dp-scroll-bar-color: var(--hm-border);

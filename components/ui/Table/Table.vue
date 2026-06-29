@@ -465,7 +465,7 @@ const refreshTableData = () => {
                     :aria-expanded="columnMenuOpen"
                     @click.stop="onColumnMenuToggle"
                   >
-                    <Icon
+                    <UiAppIcon
                       name="heroicons:view-columns"
                       class="w-[14px] h-[14px]"
                     />
@@ -583,7 +583,7 @@ const refreshTableData = () => {
               padding: { xs: 'pl-[18px] pr-[18px] py-1.5' },
               base: 'border border-hm-border rounded-[6px] text-hm-text bg-hm-surface',
               icon: { base: 'hidden' },
-              size: { xs: 'typo-filter' },
+              size: { xs: 'text-[12px]' },
               trailing: { padding: { xs: 'text-hm-text' } },
               color: { white: { outline: 'shadow-none ring-0' } },
             }"

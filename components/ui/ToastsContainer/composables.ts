@@ -23,7 +23,9 @@ type Toast = AddToast & {
   id: string;
 };
 
-const DEFAULT_DELAY = 5000;
+// Auto-dismiss per DESIGN_MANIFEST § 15.3: success/info = 4s, warning = 6s, error = never.
+const DEFAULT_DELAY = 4000;
+const WARNING_DELAY = 6000;
 const MAX_VISIBLE_TOASTS = 3;
 
 const toasts = ref<Toast[]>([]);
@@ -39,7 +41,8 @@ export const useToasts = () => {
     if (toastToAdd.type === 'error') {
       toastToAdd.delay = 0;
     } else if (toast.delay !== 0) {
-      toastToAdd.delay = toast.delay ?? DEFAULT_DELAY;
+      toastToAdd.delay =
+        toast.delay ?? (toastToAdd.type === 'warning' ? WARNING_DELAY : DEFAULT_DELAY);
     }
 
     toasts.value.push(toastToAdd);

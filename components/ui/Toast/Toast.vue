@@ -49,7 +49,7 @@ watch(
 
 <template>
   <div
-    class="overflow-hidden relative py-4 pl-4 pr-10 rounded-[8px] just-toast flex gap-3 items-center bg-hm-surface text-hm-text border border-hm-border pointer-events-auto"
+    class="overflow-hidden relative py-3 pl-4 pr-10 rounded-[8px] just-toast flex gap-2.5 items-start min-w-[280px] max-w-[420px] bg-hm-surface text-hm-text border border-hm-border pointer-events-auto font-mono"
     :class="{
       'border-l-[3px] border-l-hm-ok': !noBorder && type === 'success',
       'border-l-[3px] border-l-hm-error': !noBorder && type === 'error',
@@ -59,7 +59,7 @@ watch(
   >
     <button
       type="button"
-      class="absolute top-4 right-4 p-0 m-0 bg-transparent border-0 cursor-pointer text-hm-muted hover:text-hm-text"
+      class="absolute top-3 right-3 p-0 m-0 bg-transparent border-0 cursor-pointer text-hm-muted hover:text-hm-text"
       aria-label="Close"
       @click.stop="onClose"
     >
@@ -86,7 +86,7 @@ watch(
     </div>
     <UiAppIcon
       v-if="icon?.name"
-      class="w-8 h-8"
+      class="w-4 h-4 shrink-0 mt-0.5"
       :name="icon.name"
       :color="icon.color"
     />
@@ -97,16 +97,16 @@ watch(
     />
     <div
       v-if="slots.title || slots.description"
-      class="flex flex-col gap-vertical-1 toast-content"
+      class="flex flex-col gap-1 toast-content min-w-0"
     >
       <span
         v-if="slots.title"
-        class="typo-b-1-semibold"
+        class="text-[13px] font-semibold"
         ><slot name="title"
       /></span>
       <span
         v-if="slots.description"
-        class="typo-b-2-regular"
+        class="text-[12px]"
         ><slot name="description"
       /></span>
     </div>

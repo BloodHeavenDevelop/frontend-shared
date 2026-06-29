@@ -29,7 +29,7 @@ function onClose(): void {
   >
     <div
       v-if="showHead"
-      class="flex items-center justify-between pt-5 pb-[19px] px-5 border-b border-hm-border"
+      class="flex items-center justify-between pt-6 pb-5 px-6 border-b border-hm-border"
     >
       <p
         v-if="title"
@@ -48,7 +48,7 @@ function onClose(): void {
         />
       </span>
     </div>
-    <div class="flex flex-col w-full p-5">
+    <div class="flex flex-col w-full p-6">
       <slot name="content" />
     </div>
   </div>

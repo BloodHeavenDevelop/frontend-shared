@@ -39,6 +39,7 @@ const dropdownEl = ref<HTMLDivElement | null>(null);
 const searchInput = ref<HTMLInputElement | null>(null);
 const isOpen = ref(false);
 const search = ref('');
+const activeIndex = ref(-1);
 const position = ref<{
   top: number | null;
   bottom: number | null;
@@ -47,11 +48,15 @@ const position = ref<{
   maxHeight: number;
 }>({ top: 0, bottom: null, left: 0, width: 0, maxHeight: 280 });
 
-// Default upper bound for the dropdown panel. Matches the CSS max-height so
-// the auto-flip math agrees with what the user actually sees on screen.
-const DROPDOWN_MAX_HEIGHT = 280;
 const DROPDOWN_GAP = 4;
 const VIEWPORT_PADDING = 8;
+
+// § 16.4: the in-panel search appears only once the list is long enough that
+// scanning is slower than typing (>= 8 options). A creatable select always
+// needs the input so the user can type a new value.
+const showSearch = computed(
+  () => (props.searchable && props.options.length >= 8) || props.creatable,
+);
 
 const selectedLabel = computed(() => {
   const found = props.options.find((o) => String(o.value) === String(props.modelValue));
@@ -103,9 +108,11 @@ const updatePosition = () => {
   // anchor by `bottom` so the panel's lower edge always hugs the trigger
   // regardless of content height — otherwise short option lists would
   // float far above the trigger leaving a visual gap.
-  const openAbove = spaceBelow < DROPDOWN_MAX_HEIGHT && spaceAbove > spaceBelow;
+  // § 16.1: the panel may grow up to 60vh before it scrolls internally.
+  const panelMax = Math.round(viewportHeight * 0.6);
+  const openAbove = spaceBelow < panelMax && spaceAbove > spaceBelow;
   const availableHeight = Math.max(120, openAbove ? spaceAbove : spaceBelow);
-  const maxHeight = Math.min(DROPDOWN_MAX_HEIGHT, availableHeight - DROPDOWN_GAP);
+  const maxHeight = Math.min(panelMax, availableHeight - DROPDOWN_GAP);
   position.value = {
     top: openAbove ? null : rect.bottom + DROPDOWN_GAP,
     bottom: openAbove ? viewportHeight - rect.top + DROPDOWN_GAP : null,
@@ -120,8 +127,14 @@ const open = () => {
   updatePosition();
   isOpen.value = true;
   search.value = '';
+  // Set after flush so the `search` watcher (which resets the highlight to 0)
+  // doesn't clobber the selected-option highlight we want on open.
   nextTick(() => {
+    activeIndex.value = props.options.findIndex(
+      (o) => String(o.value) === String(props.modelValue),
+    );
     searchInput.value?.focus();
+    scrollActiveIntoView();
   });
 };
 
@@ -135,6 +148,35 @@ const selectOption = (opt: Option) => {
   close();
 };
 
+const scrollActiveIntoView = () => {
+  if (activeIndex.value < 0) return;
+  nextTick(() => {
+    const nodes = dropdownEl.value?.querySelectorAll<HTMLElement>('.hm-select-option');
+    nodes?.[activeIndex.value]?.scrollIntoView({ block: 'nearest' });
+  });
+};
+
+// § 16.5: ArrowUp/ArrowDown move the highlight, skipping disabled options.
+const moveActive = (delta: number) => {
+  const list = filteredOptions.value;
+  if (!list.length) {
+    activeIndex.value = -1;
+    return;
+  }
+  let next = activeIndex.value;
+  for (let i = 0; i < list.length; i++) {
+    next = (next + delta + list.length) % list.length;
+    if (!list[next]?.disabled) break;
+  }
+  activeIndex.value = next;
+  scrollActiveIntoView();
+};
+
+// Keep the highlight valid as the filtered list changes under search.
+watch(search, () => {
+  activeIndex.value = filteredOptions.value.length ? 0 : -1;
+});
+
 const onDocumentClick = (e: MouseEvent) => {
   const target = e.target as Node;
   if (triggerEl.value?.contains(target)) return;
@@ -146,11 +188,34 @@ const onScroll = () => {
   if (isOpen.value) updatePosition();
 };
 
+// § 16.5: Escape closes + returns focus to the trigger, arrows move the
+// highlight, Enter activates it (or creates), Tab closes and moves on.
 const onKeyDown = (e: KeyboardEvent) => {
-  if (e.key === 'Escape' && isOpen.value) close();
-  if (e.key === 'Enter' && isOpen.value && showCreateOption.value) {
-    e.preventDefault();
-    createOption();
+  if (!isOpen.value) return;
+  switch (e.key) {
+    case 'Escape':
+      e.preventDefault();
+      close();
+      triggerEl.value?.focus();
+      break;
+    case 'ArrowDown':
+      e.preventDefault();
+      moveActive(1);
+      break;
+    case 'ArrowUp':
+      e.preventDefault();
+      moveActive(-1);
+      break;
+    case 'Enter': {
+      e.preventDefault();
+      const opt = filteredOptions.value[activeIndex.value];
+      if (opt) selectOption(opt);
+      else if (showCreateOption.value) createOption();
+      break;
+    }
+    case 'Tab':
+      close();
+      break;
   }
 };
 
@@ -231,7 +296,7 @@ onBeforeUnmount(() => {
       }"
     >
       <div
-        v-if="searchable"
+        v-if="showSearch"
         class="hm-select-search-wrap"
       >
         <input
@@ -245,15 +310,17 @@ onBeforeUnmount(() => {
 
       <div class="hm-select-options">
         <button
-          v-for="opt in filteredOptions"
+          v-for="(opt, index) in filteredOptions"
           :key="opt.value"
           type="button"
           class="hm-select-option"
           :class="{
             'hm-select-option--active': String(opt.value) === String(modelValue),
+            'hm-select-option--highlight': index === activeIndex,
             'hm-select-option--disabled': opt.disabled,
           }"
           :disabled="opt.disabled"
+          @mouseenter="activeIndex = index"
           @click="selectOption(opt)"
         >
           <span class="hm-select-option-label">{{ opt.label }}</span>
@@ -368,8 +435,10 @@ onBeforeUnmount(() => {
   z-index: 100;
   background: var(--hm-surface);
   border: 1px solid var(--hm-border);
-  border-radius: 6px;
-  max-height: 280px;
+  border-radius: 8px;
+  /* § 16.1: floating panels float over varied content and need the shadow. */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  max-height: 60vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -410,9 +479,9 @@ onBeforeUnmount(() => {
   padding: 8px 10px;
   background: transparent;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   color: var(--hm-text);
-  font-size: 13px;
+  font-size: 12px;
   cursor: pointer;
   text-align: left;
   transition:
@@ -420,14 +489,15 @@ onBeforeUnmount(() => {
     color 0.1s;
 }
 
-.hm-select-option:hover:not(.hm-select-option--disabled) {
+.hm-select-option:hover:not(.hm-select-option--disabled),
+.hm-select-option--highlight:not(.hm-select-option--disabled) {
   background: rgba(0, 212, 255, 0.08);
   color: var(--hm-accent);
 }
 
 .hm-select-option--active {
   color: var(--hm-accent);
-  background: rgba(0, 212, 255, 0.05);
+  background: rgba(0, 212, 255, 0.1);
 }
 
 .hm-select-option--create {

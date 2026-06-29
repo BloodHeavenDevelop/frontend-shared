@@ -1,16 +1,16 @@
 # @bloodheaven/frontend-shared
 
-Общий **Nuxt-слой** (layer) с каноничными UI-примитивами design-system BloodHeaven.
-Единственный источник правды для `components/ui/*` — кнопки, таблицы, модалки, формы,
-селекты, тосты, попапы и т.д. Все фронтенды (`ai-template`, `auth-gateway`,
-`health-monitor`, …) подключают этот слой и тянут компоненты отсюда, а не держат
-собственные копии.
+A shared **Nuxt layer** with the canonical UI primitives of the BloodHeaven
+design system. The single source of truth for `components/ui/*` — buttons, tables,
+modals, forms, selects, toasts, popups, and so on. Every frontend (`ai-template`,
+`auth-gateway`, `health-monitor`, …) extends this layer and pulls components from
+here instead of keeping its own copies.
 
-Компоненты построены поверх `.hm-*` CSS-классов из `DESIGN_MANIFEST.md`.
+Components are built on top of the `.hm-*` CSS classes from `DESIGN_MANIFEST.md`.
 
-## Что внутри
+## What's inside
 
-`components/ui/` — универсальные примитивы design-system (используются во всех фронтах):
+`components/ui/` — universal design-system primitives (used across all frontends):
 
 ```
 AppIcon  AppLoadingIndicator  Badge  Banner  Button  ButtonBack  CircularLoader
@@ -19,46 +19,47 @@ HmSelect  IconButton  Input  Modal  NavDropdown  PopupBox  PopupContainer  Searc
 SegmentedControl  Table  TableActions  TableInput  Toast  ToastsContainer
 ```
 
-Авто-импорт сохраняет привычные имена: `components/ui/Button/Button.vue` → `<UiButton>`.
+Auto-import preserves the familiar names: `components/ui/Button/Button.vue` → `<UiButton>`.
 
-### Чего здесь намеренно нет (доменные компоненты)
+### What's deliberately not here (domain components)
 
-В слой попадают только компоненты, чьи `~/...`-зависимости есть в **каждом**
-потребляющем приложении. Иначе компонент валит typecheck там, где зависимости нет
-(в Nuxt-слое typecheck-аются все компоненты у каждого потребителя). Поэтому
-доменно-связанные виджеты остаются **локально** в своих приложениях:
+Only components whose `~/...` dependencies exist in **every** consuming application
+belong in the layer. Otherwise a component breaks typecheck wherever those
+dependencies are missing (in a Nuxt layer, every component is typechecked in each
+consumer). So domain-coupled widgets stay **local** to their applications:
 
-| Компонент                         | Живёт локально в | Завязан на                                   |
+| Component                         | Lives locally in | Coupled to                                   |
 | --------------------------------- | ---------------- | -------------------------------------------- |
-| `DateTimePickerUtc`, `WeekdayPicker` | ai-template, health-monitor | `~/utils/utc-datetime`, `~/constants/maintenance` → resource-домен |
+| `DateTimePickerUtc`, `WeekdayPicker` | ai-template, health-monitor | `~/utils/utc-datetime`, `~/constants/maintenance` → resource domain |
 | `ImageUpload`, `ImageCropper`, `QrCode` | auth-gateway | `~/stores/files.store`, `~/services/files.service`, `~/types/file` |
 
-## Как подключить (в каждом фронтенде)
+## How to wire it up (in each frontend)
 
-Слой — это не приложение, его нельзя запустить отдельно. Подключение в `nuxt.config.ts`
-потребляющего приложения:
+The layer is not an application — it can't be run on its own. Wire it up in the
+consuming application's `nuxt.config.ts`:
 
 ```ts
 export default defineNuxtConfig({
-  // через git (после публикации репозитория):
+  // via git (once the repository is published):
   extends: [['github:BloodHeavenDevelop/frontend-shared', { install: true }]],
-  // или локально в этом workspace (соседняя папка):
+  // or locally within this workspace (sibling folder):
   // extends: ['../../frontend-shared'],
 });
 ```
 
-После этого `<UiButton>`, `<UiTable>` и прочие доступны как раньше — через авто-импорт.
+After that `<UiButton>`, `<UiTable>`, and the rest are available as before — via
+auto-import.
 
-### ⚠️ Явные импорты `~/components/ui/...`
+### ⚠️ Explicit `~/components/ui/...` imports
 
-В коде приложений сотни **явных** импортов вида
+Application code has hundreds of **explicit** imports like
 `import UiButton from '~/components/ui/Button/Button.vue'`,
-`import { useToasts } from '~/components/ui/ToastsContainer/composables'` и т.п.
-Псевдоним `~` в коде приложения указывает на само приложение, а не на слой, поэтому
-после удаления локальной `components/ui` эти импорты сломаются. Два пути:
+`import { useToasts } from '~/components/ui/ToastsContainer/composables'`, and so on.
+The `~` alias in application code points at the application itself, not at the layer,
+so once you remove the local `components/ui` those imports break. Two options:
 
-1. **Alias (минимум правок).** Добавить в `nuxt.config.ts` приложения отдельный
-   псевдоним и переписать импорты на него (sed-ом), `#shared-ui/` → слой:
+1. **Alias (minimal edits).** Add a dedicated alias to the application's
+   `nuxt.config.ts` and rewrite the imports to use it (with `sed`), `#shared-ui/` → the layer:
    ```ts
    import { fileURLToPath } from 'node:url';
    const sharedUiDir = fileURLToPath(
@@ -69,45 +70,46 @@ export default defineNuxtConfig({
      alias: { '#shared-ui': sharedUiDir },
    });
    ```
-   и `~/components/ui/` → `#shared-ui/` по всему приложению. Префикс **не** `#ui` —
-   он занят `@nuxt/ui`; и не `~/components/ui`, чтобы не конфликтовать с базовым `~`.
-2. **Только авто-импорт.** Убрать явные импорты компонентов (использовать `<UiX>` напрямую),
-   а для не-компонентных экспортов (`useToasts`, типы `TableColumn`/`ButtonVariant`/`BadgeVariant`)
-   завести их в авто-импортируемые директории слоя. Больше работы, чище результат.
+   then `~/components/ui/` → `#shared-ui/` across the whole application. The prefix is
+   **not** `#ui` — that's taken by `@nuxt/ui`; and not `~/components/ui`, to avoid
+   clashing with the base `~`.
+2. **Auto-import only.** Drop the explicit component imports (use `<UiX>` directly),
+   and for the non-component exports (`useToasts`, the `TableColumn`/`ButtonVariant`/`BadgeVariant`
+   types) move them into the layer's auto-imported directories. More work, cleaner result.
 
-## Контракт приложения (peer-зависимости)
+## Application contract (peer dependencies)
 
-Часть компонентов обращается к модулям, которые **остаются в каждом приложении**
-(в слое их намеренно нет — это доменный код, а не design-system). При `extends`
-алиас `~` внутри компонентов слоя резолвится в потребляющее приложение, поэтому эти
-пути должны там существовать:
+Some components reach for modules that **stay in each application** (deliberately not
+in the layer — that's domain code, not design system). With `extends`, the `~` alias
+inside layer components resolves to the consuming application, so these paths must
+exist there:
 
-| Компонент          | Требует в приложении                                                            |
+| Component          | Requires in the application                                                     |
 | ------------------ | ------------------------------------------------------------------------------- |
 | `EnvBulkInput`     | `~/utils/parse-env`                                                            |
 | `Table`            | `~/composables/use-table-column-preferences`                                   |
 | `PopupContainer`   | `~/composables/use-popup-components`, `~/composables/use-popup-management`, `~/types/popup/interfaces` |
 | `Modal/TFAModal`   | `~/composables/use-popup-control`, `~/composables/use-tfa-modal`, `~/types/popup` |
 
-Все перечисленные пути присутствуют в каждом фронте проекта, поэтому слой
-typecheck-ится чисто во всех потребителях.
+All of these paths are present in every frontend in the project, so the layer
+typechecks cleanly in all consumers.
 
-Дополнительно: каноничный `TFAModal` использует i18n-ключи `twoFactor.*` и `common.cancel`.
-Они есть в `auth-gateway`, но **отсутствуют** в `ai-template`/`health-monitor` — если те
-рендерят TFA-модалку, ключи нужно добавить в их `i18n/locales`.
+Additionally: the canonical `TFAModal` uses the i18n keys `twoFactor.*` and `common.cancel`.
+They exist in `auth-gateway` but are **missing** in `ai-template`/`health-monitor` — if
+those render the TFA modal, the keys need to be added to their `i18n/locales`.
 
-## Разрешение расхождений (эталон — DESIGN_MANIFEST.md)
+## Resolving divergences (the reference is DESIGN_MANIFEST.md)
 
-На момент выноса версии компонентов в разных фронтах слегка расходились. Каноничная
-версия выбрана по `DESIGN_MANIFEST.md`:
+At extraction time the component versions diverged slightly between frontends. The
+canonical version was chosen per `DESIGN_MANIFEST.md`:
 
-| Компонент            | Канон | Обоснование (манифест)                                                       |
+| Component            | Canon | Rationale (manifest)                                                        |
 | -------------------- | ----- | ---------------------------------------------------------------------------- |
-| `Button`             | auth  | § 17.1: спиннер центрируется отрицательными margin, не `transform` (тот перебивается анимацией `hm-spin`). Версии ai/hm нарушали правило. |
-| `FormSelect`         | auth  | § 11.2 / стр. 1298: добавлен `filter`-аффорданс (pixel-twin `.hm-input`, 30px, mono, 8px). |
-| `HmSelect`           | hm    | § 11.2: тот же `filter`-аффорданс для toolbar.                               |
-| `Modal/TFAModal`     | auth  | i18n вместо хардкод-строк — полнее и корректнее.                             |
+| `Button`             | auth  | § 17.1: the spinner is centered with negative margins, not `transform` (that gets overridden by the `hm-spin` animation). The ai/hm versions broke the rule. |
+| `FormSelect`         | auth  | § 11.2 / p. 1298: added a `filter` affordance (pixel-twin of `.hm-input`, 30px, mono, 8px). |
+| `HmSelect`           | hm    | § 11.2: the same `filter` affordance for the toolbar.                       |
+| `Modal/TFAModal`     | auth  | i18n instead of hardcoded strings — more complete and correct.             |
 
-Остальные компоненты во всех фронтах были идентичны. (`DateTimePickerUtc` тоже
-расходился — hm-версия канонична по стр. 831, `flex-wrap: wrap` — но компонент
-доменный и остаётся локально, см. выше.)
+All other components were identical across frontends. (`DateTimePickerUtc` also
+diverged — the hm version is canonical per p. 831, `flex-wrap: wrap` — but the
+component is domain-specific and stays local, see above.)
