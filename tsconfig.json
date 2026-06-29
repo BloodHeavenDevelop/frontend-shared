@@ -1,0 +1,13 @@
+{
+  // Standalone typecheck of the layer is partial: the `~/...` imports below resolve
+  // against the consuming app, not this repo, so they will not type-resolve here.
+  // Real type safety happens in each consuming frontend after `extends`.
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "jsx": "preserve",
+    "skipLibCheck": true
+  }
+}

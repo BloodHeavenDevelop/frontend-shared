@@ -1,0 +1,20 @@
+{
+  "name": "@bloodheaven/frontend-shared",
+  "version": "0.1.0",
+  "description": "Общий Nuxt-слой BloodHeaven: каноничные UI-примитивы design-system (.hm-*) из components/ui",
+  "type": "module",
+  "private": false,
+  "files": [
+    "components",
+    "nuxt.config.ts"
+  ],
+  "exports": {
+    ".": {
+      "import": "./nuxt.config.ts"
+    },
+    "./components/*": "./components/*"
+  },
+  "peerDependencies": {
+    "nuxt": "^4.1.1"
+  }
+}

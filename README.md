@@ -1,0 +1,100 @@
+# @bloodheaven/frontend-shared
+
+Общий **Nuxt-слой** (layer) с каноничными UI-примитивами design-system BloodHeaven.
+Единственный источник правды для `components/ui/*` — кнопки, таблицы, модалки, формы,
+селекты, тосты, попапы и т.д. Все фронтенды (`ai-template`, `auth-gateway`,
+`health-monitor`, …) подключают этот слой и тянут компоненты отсюда, а не держат
+собственные копии.
+
+Компоненты построены поверх `.hm-*` CSS-классов из `DESIGN_MANIFEST.md`.
+
+## Что внутри
+
+`components/ui/` — единый набор (объединение всех фронтов):
+
+```
+AppIcon  AppLoadingIndicator  Badge  Banner  Button  ButtonBack  CircularLoader
+DatePicker  DateRangeFilter  DateTimePickerUtc  EnvBulkInput  Form  FormInput
+FormSelect  FormTextarea  HmSelect  IconButton  ImageCropper  ImageUpload  Input
+Modal  NavDropdown  PopupBox  PopupContainer  QrCode  SearchInput  SegmentedControl
+Table  TableActions  TableInput  Toast  ToastsContainer  WeekdayPicker
+```
+
+Авто-импорт сохраняет привычные имена: `components/ui/Button/Button.vue` → `<UiButton>`.
+
+## Как подключить (в каждом фронтенде)
+
+Слой — это не приложение, его нельзя запустить отдельно. Подключение в `nuxt.config.ts`
+потребляющего приложения:
+
+```ts
+export default defineNuxtConfig({
+  // через git (после публикации репозитория):
+  extends: [['github:BloodHeavenDevelop/frontend-shared', { install: true }]],
+  // или локально в этом workspace (соседняя папка):
+  // extends: ['../../frontend-shared'],
+});
+```
+
+После этого `<UiButton>`, `<UiTable>` и прочие доступны как раньше — через авто-импорт.
+
+### ⚠️ Явные импорты `~/components/ui/...`
+
+В коде приложений сотни **явных** импортов вида
+`import UiButton from '~/components/ui/Button/Button.vue'`,
+`import { useToasts } from '~/components/ui/ToastsContainer/composables'` и т.п.
+Псевдоним `~` в коде приложения указывает на само приложение, а не на слой, поэтому
+после удаления локальной `components/ui` эти импорты сломаются. Два пути:
+
+1. **Alias (минимум правок).** Добавить в `nuxt.config.ts` приложения отдельный
+   псевдоним и переписать импорты на него (sed-ом), напр. `#ui/` → слой:
+   ```ts
+   import { fileURLToPath } from 'node:url';
+   export default defineNuxtConfig({
+     alias: { '#ui': fileURLToPath(new URL('node_modules/@bloodheaven/frontend-shared/components/ui', import.meta.url)) },
+   });
+   ```
+   и `~/components/ui/` → `#ui/` по всему приложению. (Отдельный префикс, а не `~/components/ui`,
+   чтобы не конфликтовать с базовым алиасом `~` при разрешении путей.)
+2. **Только авто-импорт.** Убрать явные импорты компонентов (использовать `<UiX>` напрямую),
+   а для не-компонентных экспортов (`useToasts`, типы `TableColumn`/`ButtonVariant`/`BadgeVariant`)
+   завести их в авто-импортируемые директории слоя. Больше работы, чище результат.
+
+## Контракт приложения (peer-зависимости)
+
+Часть компонентов обращается к модулям, которые **остаются в каждом приложении**
+(в слое их намеренно нет — это доменный код, а не design-system). При `extends`
+алиас `~` внутри компонентов слоя резолвится в потребляющее приложение, поэтому эти
+пути должны там существовать:
+
+| Компонент          | Требует в приложении                                                            |
+| ------------------ | ------------------------------------------------------------------------------- |
+| `DateTimePickerUtc`| `~/utils/utc-datetime`                                                          |
+| `EnvBulkInput`     | `~/utils/parse-env`                                                            |
+| `WeekdayPicker`    | `~/constants/maintenance`                                                      |
+| `Table`            | `~/composables/use-table-column-preferences`                                   |
+| `PopupContainer`   | `~/composables/use-popup-components`, `~/composables/use-popup-management`, `~/types/popup/interfaces` |
+| `Modal/TFAModal`   | `~/composables/use-popup-control`, `~/composables/use-tfa-modal`, `~/types/popup` |
+| `ImageUpload`      | `~/services/files.service`, `~/stores/files.store`, `~/types/file`             |
+
+Если приложение не использует компонент — его зависимости не подтягиваются
+(например `ImageUpload` нужен только `auth-gateway`).
+
+Дополнительно: каноничный `TFAModal` использует i18n-ключи `twoFactor.*` и `common.cancel`.
+Они есть в `auth-gateway`, но **отсутствуют** в `ai-template`/`health-monitor` — если те
+рендерят TFA-модалку, ключи нужно добавить в их `i18n/locales`.
+
+## Разрешение расхождений (эталон — DESIGN_MANIFEST.md)
+
+На момент выноса версии компонентов в разных фронтах слегка расходились. Каноничная
+версия выбрана по `DESIGN_MANIFEST.md`:
+
+| Компонент            | Канон | Обоснование (манифест)                                                       |
+| -------------------- | ----- | ---------------------------------------------------------------------------- |
+| `Button`             | auth  | § 17.1: спиннер центрируется отрицательными margin, не `transform` (тот перебивается анимацией `hm-spin`). Версии ai/hm нарушали правило. |
+| `FormSelect`         | auth  | § 11.2 / стр. 1298: добавлен `filter`-аффорданс (pixel-twin `.hm-input`, 30px, mono, 8px). |
+| `HmSelect`           | hm    | § 11.2: тот же `filter`-аффорданс для toolbar.                               |
+| `Modal/TFAModal`     | auth  | i18n вместо хардкод-строк — полнее и корректнее.                             |
+| `DateTimePickerUtc`  | hm    | стр. 831: `flex-wrap: wrap` + гибкий `flex: 1 1 120px` для переноса строк.   |
+
+Остальные компоненты во всех фронтах были идентичны.
