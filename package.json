@@ -15,6 +15,14 @@
     "./components/*": "./components/*"
   },
   "peerDependencies": {
-    "nuxt": "^4.1.1"
+    "@vuepic/vue-datepicker": "^11.0.2",
+    "date-fns": "^4.1.0",
+    "nuxt": "^4.1.1",
+    "yup": "^1.7.0"
+  },
+  "devDependencies": {
+    "@vuepic/vue-datepicker": "^11.0.3",
+    "date-fns": "^4.4.0",
+    "yup": "^1.7.1"
   }
 }

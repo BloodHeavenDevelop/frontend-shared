@@ -10,17 +10,28 @@
 
 ## Что внутри
 
-`components/ui/` — единый набор (объединение всех фронтов):
+`components/ui/` — универсальные примитивы design-system (используются во всех фронтах):
 
 ```
 AppIcon  AppLoadingIndicator  Badge  Banner  Button  ButtonBack  CircularLoader
-DatePicker  DateRangeFilter  DateTimePickerUtc  EnvBulkInput  Form  FormInput
-FormSelect  FormTextarea  HmSelect  IconButton  ImageCropper  ImageUpload  Input
-Modal  NavDropdown  PopupBox  PopupContainer  QrCode  SearchInput  SegmentedControl
-Table  TableActions  TableInput  Toast  ToastsContainer  WeekdayPicker
+DatePicker  DateRangeFilter  EnvBulkInput  Form  FormInput  FormSelect  FormTextarea
+HmSelect  IconButton  Input  Modal  NavDropdown  PopupBox  PopupContainer  SearchInput
+SegmentedControl  Table  TableActions  TableInput  Toast  ToastsContainer
 ```
 
 Авто-импорт сохраняет привычные имена: `components/ui/Button/Button.vue` → `<UiButton>`.
+
+### Чего здесь намеренно нет (доменные компоненты)
+
+В слой попадают только компоненты, чьи `~/...`-зависимости есть в **каждом**
+потребляющем приложении. Иначе компонент валит typecheck там, где зависимости нет
+(в Nuxt-слое typecheck-аются все компоненты у каждого потребителя). Поэтому
+доменно-связанные виджеты остаются **локально** в своих приложениях:
+
+| Компонент                         | Живёт локально в | Завязан на                                   |
+| --------------------------------- | ---------------- | -------------------------------------------- |
+| `DateTimePickerUtc`, `WeekdayPicker` | ai-template, health-monitor | `~/utils/utc-datetime`, `~/constants/maintenance` → resource-домен |
+| `ImageUpload`, `ImageCropper`, `QrCode` | auth-gateway | `~/stores/files.store`, `~/services/files.service`, `~/types/file` |
 
 ## Как подключить (в каждом фронтенде)
 
@@ -47,15 +58,19 @@ export default defineNuxtConfig({
 после удаления локальной `components/ui` эти импорты сломаются. Два пути:
 
 1. **Alias (минимум правок).** Добавить в `nuxt.config.ts` приложения отдельный
-   псевдоним и переписать импорты на него (sed-ом), напр. `#ui/` → слой:
+   псевдоним и переписать импорты на него (sed-ом), `#shared-ui/` → слой:
    ```ts
    import { fileURLToPath } from 'node:url';
+   const sharedUiDir = fileURLToPath(
+     new URL('./node_modules/@bloodheaven/frontend-shared/components/ui', import.meta.url),
+   );
    export default defineNuxtConfig({
-     alias: { '#ui': fileURLToPath(new URL('node_modules/@bloodheaven/frontend-shared/components/ui', import.meta.url)) },
+     extends: ['@bloodheaven/frontend-shared'],
+     alias: { '#shared-ui': sharedUiDir },
    });
    ```
-   и `~/components/ui/` → `#ui/` по всему приложению. (Отдельный префикс, а не `~/components/ui`,
-   чтобы не конфликтовать с базовым алиасом `~` при разрешении путей.)
+   и `~/components/ui/` → `#shared-ui/` по всему приложению. Префикс **не** `#ui` —
+   он занят `@nuxt/ui`; и не `~/components/ui`, чтобы не конфликтовать с базовым `~`.
 2. **Только авто-импорт.** Убрать явные импорты компонентов (использовать `<UiX>` напрямую),
    а для не-компонентных экспортов (`useToasts`, типы `TableColumn`/`ButtonVariant`/`BadgeVariant`)
    завести их в авто-импортируемые директории слоя. Больше работы, чище результат.
@@ -69,16 +84,13 @@ export default defineNuxtConfig({
 
 | Компонент          | Требует в приложении                                                            |
 | ------------------ | ------------------------------------------------------------------------------- |
-| `DateTimePickerUtc`| `~/utils/utc-datetime`                                                          |
 | `EnvBulkInput`     | `~/utils/parse-env`                                                            |
-| `WeekdayPicker`    | `~/constants/maintenance`                                                      |
 | `Table`            | `~/composables/use-table-column-preferences`                                   |
 | `PopupContainer`   | `~/composables/use-popup-components`, `~/composables/use-popup-management`, `~/types/popup/interfaces` |
 | `Modal/TFAModal`   | `~/composables/use-popup-control`, `~/composables/use-tfa-modal`, `~/types/popup` |
-| `ImageUpload`      | `~/services/files.service`, `~/stores/files.store`, `~/types/file`             |
 
-Если приложение не использует компонент — его зависимости не подтягиваются
-(например `ImageUpload` нужен только `auth-gateway`).
+Все перечисленные пути присутствуют в каждом фронте проекта, поэтому слой
+typecheck-ится чисто во всех потребителях.
 
 Дополнительно: каноничный `TFAModal` использует i18n-ключи `twoFactor.*` и `common.cancel`.
 Они есть в `auth-gateway`, но **отсутствуют** в `ai-template`/`health-monitor` — если те
@@ -95,6 +107,7 @@ export default defineNuxtConfig({
 | `FormSelect`         | auth  | § 11.2 / стр. 1298: добавлен `filter`-аффорданс (pixel-twin `.hm-input`, 30px, mono, 8px). |
 | `HmSelect`           | hm    | § 11.2: тот же `filter`-аффорданс для toolbar.                               |
 | `Modal/TFAModal`     | auth  | i18n вместо хардкод-строк — полнее и корректнее.                             |
-| `DateTimePickerUtc`  | hm    | стр. 831: `flex-wrap: wrap` + гибкий `flex: 1 1 120px` для переноса строк.   |
 
-Остальные компоненты во всех фронтах были идентичны.
+Остальные компоненты во всех фронтах были идентичны. (`DateTimePickerUtc` тоже
+расходился — hm-версия канонична по стр. 831, `flex-wrap: wrap` — но компонент
+доменный и остаётся локально, см. выше.)
