@@ -1,18 +1,20 @@
 {
   "name": "@bloodheaven/frontend-shared",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Shared Nuxt-layer BloodHeaven: canonical UI-primitives design-system (.hm-*)",
   "type": "module",
   "private": false,
   "files": [
     "components",
+    "pages",
     "nuxt.config.ts"
   ],
   "exports": {
     ".": {
       "import": "./nuxt.config.ts"
     },
-    "./components/*": "./components/*"
+    "./components/*": "./components/*",
+    "./pages/*": "./pages/*"
   },
   "peerDependencies": {
     "@vuepic/vue-datepicker": "^11.0.2",
