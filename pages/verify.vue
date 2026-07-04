@@ -43,7 +43,7 @@ async function confirm(body: Record<string, string>, path: string): Promise<void
   } catch (e: unknown) {
     phase.value = 'error';
     const data = (e as { data?: { error?: string; message?: string } }).data;
-    message.value = data?.error || data?.message || 'This confirmation link or code is invalid or has expired.';
+    message.value = data?.message || 'This confirmation link or code is invalid or has expired.';
     codeError.value = message.value;
   }
 }
