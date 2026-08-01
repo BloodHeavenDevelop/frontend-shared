@@ -21,11 +21,12 @@
 ## 2. Словарь вариантов Badge (§12.1) — расходится
 
 Манифест документирует только `--ok` / `--error` / `--default`. Компонент эмитит
-`hm-badge--{success|warning|pending|error|info|custom}`. Классы `.hm-badge--*` определены
-в `main.css` **каждого потребителя** (не в слое), а значения пропа — часть API вызовов.
-Переименование (`success`→`ok`, `custom`→`default`) ломает call-sites и живёт вне репо.
+`hm-badge--{success|warning|pending|error|info|custom}`. Классы `.hm-badge--*` с v0.3.0
+живут в `assets/styles/hm-base.css` слоя, но значения пропа — часть API вызовов во всех
+фронтах: переименование (`success`→`ok`, `custom`→`default`) ломает call-sites.
 
-Нужна скоординированная правка: `main.css` потребителей + согласованное изменение API.
+Нужна скоординированная правка: `hm-base.css` + согласованное изменение API и call-sites
+в потребителях.
 
 ## 3. Контракт `.hm-input` у FormInput / FormSelect / TableInput
 

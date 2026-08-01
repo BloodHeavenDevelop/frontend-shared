@@ -6,9 +6,16 @@ modals, forms, selects, toasts, popups, and so on. Every frontend (`ai-template`
 `auth-gateway`, `health-monitor`, …) extends this layer and pulls components from
 here instead of keeping its own copies.
 
-Components are built on top of the `.hm-*` CSS classes from `DESIGN_MANIFEST.md`.
+Components are built on top of the `.hm-*` CSS classes from `DESIGN_MANIFEST.md` —
+and since v0.3.0 those classes ship **from here too**, so a frontend gets the
+components and the stylesheet they assume from one place.
 
 ## What's inside
+
+`assets/styles/hm-base.css` — the design system itself: the `@font-face` declarations,
+the `--hm-*` tokens, every `.hm-*` primitive and the Tailwind directives.
+`public/fonts/*.woff2` — the fonts that stylesheet declares (JetBrains Mono latin +
+cyrillic, Syne latin).
 
 `components/ui/` — universal design-system primitives (used across all frontends):
 
@@ -49,6 +56,32 @@ export default defineNuxtConfig({
 
 After that `<UiButton>`, `<UiTable>`, and the rest are available as before — via
 auto-import.
+
+### Design system CSS
+
+The components assume the `.hm-*` classes exist. Import the base stylesheet as the
+**first line** of the application's own `assets/styles/main.css` (the file the app
+registers in `css: ['~/assets/styles/main.css']`):
+
+```css
+@import '@bloodheaven/frontend-shared/assets/styles/hm-base.css';
+
+/* project-local rules below */
+```
+
+Rules:
+
+- **The import, not a `css:` entry in the layer.** Nuxt merges layer `css` arrays
+  *after* the application's, so a layer-registered stylesheet would land on top of the
+  app's rules — and its Tailwind preflight would reset controls the app just styled.
+  The explicit `@import` pins the cascade: base first, app second.
+- **The app keeps no copy of the base rules.** `main.css` in a consuming frontend holds
+  only what is genuinely project-local (a canvas width, an auth shell, a vendor widget
+  override). Anything portable — a new primitive, a token, a fix to an existing class —
+  goes into `hm-base.css` here and is released as a new layer version.
+- **Fonts need no wiring.** They are served from this layer's `public/`, so the
+  `url('/fonts/…')` references in the stylesheet resolve in every consumer. Applications
+  must not keep their own `public/fonts/`.
 
 ### ⚠️ Explicit `~/components/ui/...` imports
 

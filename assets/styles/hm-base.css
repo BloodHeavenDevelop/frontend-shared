@@ -1,0 +1,1301 @@
+/* ============================================
+   BloodHeaven design system — base stylesheet
+   ============================================
+
+   The portable half of DESIGN_MANIFEST.md: web fonts, `--hm-*` tokens and every
+   `.hm-*` primitive the layer's `components/ui/*` are built on. This file is the
+   single source of truth — applications must not keep their own copy of these
+   rules.
+
+   Consuming applications import it as the FIRST line of their own
+   `assets/styles/main.css`:
+
+       @import '@bloodheaven/frontend-shared/assets/styles/hm-base.css';
+
+   The import (not a `css:` entry in the layer's nuxt.config) is deliberate: it
+   pins the cascade order, so the app's own rules always come after the base and
+   the Tailwind preflight injected here never lands on top of them.
+
+   Anything project-specific — an app's canvas width, its auth shell, a vendor
+   widget override — stays in that application's `main.css`.
+   ============================================ */
+
+/* === Font Faces === */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/jetbrains-mono-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+@font-face {
+  font-family: 'Syne';
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/syne-latin.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@tailwind base;
+
+@layer base {
+  :root {
+    /* Design Manifest — CSS Custom Properties */
+    --hm-bg: #080c10;
+    --hm-surface: #0d1117;
+    --hm-border: #1c2333;
+    --hm-accent: #00d4ff;
+    --hm-text: #e6edf3;
+    --hm-muted: #8b949e;
+
+    /* One form control height — every single-line control lands on it */
+    --hm-control-height: 36px;
+
+    /* Status colors */
+    --hm-ok: #10b981;
+    --hm-error: #ef4444;
+    --hm-active: #3b82f6;
+    --hm-paused: #6b7280;
+    --hm-warning: #f59e0b;
+    --hm-purple: #7c3aed;
+    --hm-purple-l: #a78bfa;
+  }
+}
+
+@tailwind components;
+@tailwind utilities;
+
+/* === Base Styles === */
+:root {
+  font-family: 'JetBrains Mono', monospace;
+  color-scheme: dark;
+}
+
+::selection {
+  background: rgba(0, 212, 255, 0.3) !important;
+  color: #e6edf3 !important;
+}
+
+::-moz-selection {
+  background: rgba(0, 212, 255, 0.3) !important;
+  color: #e6edf3 !important;
+}
+
+#__nuxt {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--hm-bg);
+  color: var(--hm-text);
+}
+
+body {
+  overflow-x: hidden;
+  background-color: var(--hm-bg);
+  color: var(--hm-text);
+  margin: 0;
+  border: 8px solid #000000;
+}
+
+/* === Grid Background (every page) === */
+.hm-grid-bg {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0, 212, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* === Page Structure === */
+.hm-page {
+  min-height: 100vh;
+  background: var(--hm-bg);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.hm-canvas {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  padding: 32px 40px 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* === Header === */
+.hm-header {
+  position: relative;
+  z-index: 10;
+  padding: 32px 40px 20px;
+  border-bottom: 1px solid var(--hm-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(180deg, rgba(0, 212, 255, 0.04) 0%, transparent 100%);
+}
+
+.hm-header__left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hm-header__logo {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--hm-text);
+  text-decoration: none;
+  letter-spacing: -0.5px;
+}
+
+.hm-header__nav {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hm-header__nav-divider {
+  width: 1px;
+  height: 18px;
+  background: var(--hm-border);
+  margin: 0 4px;
+}
+
+/* === Footer === */
+.hm-footer {
+  position: relative;
+  padding: 14px 40px;
+  border-top: 1px solid var(--hm-border);
+  background: linear-gradient(0deg, rgba(0, 212, 255, 0.04) 0%, transparent 100%);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--hm-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.hm-footer__left,
+.hm-footer__center,
+.hm-footer__right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hm-footer__sep {
+  opacity: 0.4;
+}
+
+.hm-footer__meta {
+  color: var(--hm-muted);
+}
+
+/* === Pills (label-value chips, used in footer + elsewhere) === */
+.hm-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--hm-border);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--hm-muted);
+}
+
+.hm-pill--accent {
+  background: rgba(0, 212, 255, 0.08);
+  border-color: rgba(0, 212, 255, 0.3);
+  color: var(--hm-accent);
+}
+
+.hm-pill--ok {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #10b981;
+}
+
+.hm-pill--error {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+.hm-pill--warning {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #f59e0b;
+}
+
+/* === Nav Link Variants (global — used by Teleport) === */
+.hm-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--hm-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.hm-nav-link:hover {
+  background: rgba(0, 212, 255, 0.08);
+  color: var(--hm-accent);
+}
+
+.hm-nav-link--active {
+  background: rgba(0, 212, 255, 0.08);
+  border-color: rgba(0, 212, 255, 0.3);
+  color: var(--hm-accent);
+}
+
+.hm-nav-link--admin {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #f59e0b;
+}
+
+.hm-nav-link--admin:hover {
+  background: rgba(245, 158, 11, 0.18);
+}
+
+.hm-nav-link--signout {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+.hm-nav-link--signout:hover {
+  background: rgba(239, 68, 68, 0.18);
+}
+
+/* === Buttons === */
+.hm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 1px solid transparent;
+}
+
+.hm-btn--primary {
+  background: var(--hm-accent);
+  color: #0a0e17;
+  border: none;
+}
+
+.hm-btn--primary:hover {
+  opacity: 0.9;
+}
+
+.hm-btn--cyan {
+  background: rgba(0, 212, 255, 0.1);
+  border-color: rgba(0, 212, 255, 0.3);
+  color: var(--hm-accent);
+}
+
+.hm-btn--cyan:hover {
+  background: rgba(0, 212, 255, 0.2);
+}
+
+.hm-btn--green {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #10b981;
+}
+
+.hm-btn--green:hover {
+  background: rgba(16, 185, 129, 0.2);
+}
+
+.hm-btn--purple {
+  background: rgba(124, 58, 237, 0.1);
+  border-color: rgba(124, 58, 237, 0.3);
+  color: #a78bfa;
+}
+
+.hm-btn--purple:hover {
+  background: rgba(124, 58, 237, 0.2);
+}
+
+.hm-btn--red {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+.hm-btn--red:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.hm-btn--neutral {
+  background: transparent;
+  border-color: var(--hm-border);
+  color: var(--hm-muted);
+}
+
+.hm-btn--neutral:hover {
+  background: rgba(0, 212, 255, 0.05);
+}
+
+.hm-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.hm-btn--sm {
+  height: 24px;
+  padding: 0 10px;
+  font-size: 10px;
+}
+
+/* === Row Action Buttons === */
+.action-btn {
+  padding: 4px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  background: transparent;
+  transition: all 0.15s;
+}
+
+.action-edit {
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  color: var(--hm-accent);
+}
+
+.action-edit:hover {
+  background: rgba(0, 212, 255, 0.1);
+}
+
+.action-warning {
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #f59e0b;
+}
+
+.action-warning:hover {
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.action-delete {
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+.action-delete:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.action-neutral {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--hm-muted);
+}
+
+.action-neutral:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--hm-text);
+}
+
+.action-success {
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: var(--hm-ok);
+}
+
+.action-success:hover {
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* === Cards === */
+.hm-card {
+  background: var(--hm-surface);
+  border: 1px solid var(--hm-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.hm-card-accent {
+  height: 2px;
+}
+
+.hm-card-accent--ok {
+  background: linear-gradient(90deg, #10b981, #00d4ff);
+}
+
+.hm-card-accent--error {
+  background: linear-gradient(90deg, #ef4444, #f59e0b);
+}
+
+.hm-card-accent--total {
+  background: linear-gradient(90deg, #00d4ff, #7c3aed);
+}
+
+.hm-card-accent--active {
+  background: linear-gradient(90deg, #3b82f6, #00d4ff);
+}
+
+.hm-card-accent--paused {
+  background: linear-gradient(90deg, #6b7280, #9ca3af);
+}
+
+.hm-card-accent--uptime {
+  background: linear-gradient(90deg, #7c3aed, #00d4ff);
+}
+
+/* Left status bar — vertical, 2px, status-keyed.
+   Mutually exclusive with .hm-card-accent (top stripe). Card must be position:relative. */
+.hm-card-status-bar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+}
+
+.hm-card-status-bar--ok {
+  background: var(--hm-ok);
+}
+
+.hm-card-status-bar--error {
+  background: var(--hm-error);
+}
+
+.hm-card-status-bar--paused {
+  background: var(--hm-paused);
+}
+
+.hm-card-status-bar--warning {
+  background: var(--hm-warning);
+}
+
+/* === Stat Cards === */
+.hm-stat-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.hm-stat-card {
+  min-width: 10vw;
+  background: var(--hm-surface);
+  border: 1px solid var(--hm-border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  overflow: hidden;
+  flex: 1;
+}
+
+.hm-stat-card__label {
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--hm-muted);
+  margin-bottom: 8px;
+}
+
+.hm-stat-card__value {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--hm-text);
+}
+
+/* === Tables === */
+.hm-table-wrap {
+  border: 1px solid var(--hm-border);
+  border-radius: 10px;
+  background: var(--hm-surface);
+  overflow: hidden;
+}
+
+.hm-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.hm-table th {
+  padding: 10px 16px;
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--hm-muted);
+  border-bottom: 1px solid var(--hm-border);
+  text-align: left;
+  font-weight: 700;
+}
+
+.hm-table td {
+  padding: 10px 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(28, 35, 51, 0.5);
+  color: var(--hm-text);
+}
+
+.hm-table tbody tr:hover {
+  background: rgba(0, 212, 255, 0.03);
+}
+
+.hm-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Row status stripe */
+.hm-table-row--ok {
+  border-left: 3px solid #10b981;
+}
+
+.hm-table-row--error {
+  border-left: 3px solid #ef4444;
+}
+
+/* === Status Badges === */
+.hm-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.hm-badge--success,
+.hm-badge--ok {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.hm-badge--error {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.hm-badge--warning {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.hm-badge--info {
+  background: rgba(0, 212, 255, 0.15);
+  color: var(--hm-accent);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+}
+
+.hm-badge--pending,
+.hm-badge--default {
+  background: rgba(107, 114, 128, 0.15);
+  color: #9ca3af;
+  border: 1px solid rgba(107, 114, 128, 0.3);
+}
+
+.hm-badge--custom {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--hm-muted);
+  border: 1px solid var(--hm-border);
+}
+
+/* === Status Dots === */
+.hm-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.hm-dot--ok {
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+  animation: hm-pulse 2s infinite;
+}
+
+.hm-dot--error {
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+  animation: hm-pulse 1.5s infinite;
+}
+
+/* === Inputs === */
+.hm-input {
+  background: var(--hm-bg);
+  border: 1px solid var(--hm-border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  color: var(--hm-text);
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+/* One form control height: a single-line input and the select next to it line up.
+   Toolbar controls keep their own 30px height (§ 11) and are excluded. */
+input.hm-input:not(.hm-controls-search),
+.hm-select {
+  min-height: var(--hm-control-height);
+}
+
+.hm-input:focus {
+  border-color: var(--hm-accent);
+}
+
+.hm-input::placeholder {
+  color: var(--hm-muted);
+}
+
+.hm-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.hm-input--error {
+  border-color: var(--hm-error);
+}
+
+.hm-input:-webkit-autofill,
+.hm-input:-webkit-autofill:hover,
+.hm-input:-webkit-autofill:focus,
+.hm-input:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--hm-text);
+  -webkit-box-shadow: 0 0 0 1000px var(--hm-bg) inset;
+  box-shadow: 0 0 0 1000px var(--hm-bg) inset;
+  caret-color: var(--hm-text);
+  border: 1px solid var(--hm-border);
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+.hm-input:-webkit-autofill:focus {
+  border-color: var(--hm-accent);
+}
+
+/* === Bare Textarea (no form wrapper — popovers, custom panels) === */
+.hm-textarea {
+  background: var(--hm-bg);
+  border: 1px solid var(--hm-border);
+  border-radius: 8px;
+  padding: 8px 14px;
+  color: var(--hm-text);
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  outline: none;
+  resize: vertical;
+  min-height: 80px;
+  transition: border-color 0.15s;
+}
+
+.hm-textarea:focus {
+  border-color: var(--hm-accent);
+}
+
+.hm-textarea::placeholder {
+  color: var(--hm-muted);
+}
+
+.hm-textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.hm-textarea--error {
+  border-color: var(--hm-error);
+}
+
+/* === Forms (manifest § 10) === */
+.hm-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px; /* gap-sm — between fields */
+}
+
+.hm-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hm-form-label {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--hm-muted);
+}
+
+.hm-form-label__required::after {
+  content: ' *';
+  color: var(--hm-error);
+}
+
+.hm-form-error {
+  font-size: 11px;
+  color: var(--hm-error);
+}
+
+.hm-form-hint {
+  font-size: 11px;
+  color: var(--hm-muted);
+}
+
+.hm-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px; /* gap-xs — Cancel / Submit */
+  margin-top: 8px;
+}
+
+/* === Modals === */
+.hm-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.hm-modal {
+  background: var(--hm-surface);
+  border: 1px solid var(--hm-border);
+  border-radius: 14px;
+  padding: 24px;
+  width: 520px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.hm-modal--sm {
+  width: 380px;
+}
+
+.hm-modal__title {
+  font-family: 'Syne', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--hm-text);
+  margin-bottom: 20px;
+}
+
+/* === Modal footer action row (manifest § 14.4) === */
+.hm-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--hm-border);
+}
+
+/* === Native Select (for use inside modals where dropdowns would be clipped) === */
+.hm-select {
+  width: 100%;
+  padding: 8px 14px;
+  padding-right: 32px;
+  background: var(--hm-bg);
+  border: 1px solid var(--hm-border);
+  border-radius: 8px;
+  color: var(--hm-text);
+  font-size: 12px;
+  outline: none;
+  transition: border-color 0.15s;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  cursor: pointer;
+}
+
+.hm-select:focus {
+  border-color: var(--hm-accent);
+}
+
+.hm-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.hm-select option {
+  background: var(--hm-surface);
+  color: var(--hm-text);
+}
+
+/* === Checkbox === */
+/* A form checkbox committed on submit (a toggle is for settings that apply
+   immediately). The row carries its own label and an optional hint line that
+   stays aligned under the label. */
+.hm-check-group {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.hm-check {
+  display: grid;
+  grid-template-columns: 14px 1fr;
+  align-items: center;
+  column-gap: 10px;
+  row-gap: 4px;
+  cursor: pointer;
+}
+
+.hm-check__input {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background: var(--hm-bg);
+  border: 1px solid var(--hm-border);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s;
+}
+
+.hm-check__input:hover {
+  border-color: var(--hm-muted);
+}
+
+.hm-check__input:focus-visible {
+  outline: none;
+  border-color: var(--hm-accent);
+  box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.3); /* --hm-accent @ 30% */
+}
+
+.hm-check__input:checked {
+  background: rgba(0, 212, 255, 0.1); /* --hm-accent @ 10% */
+  border-color: var(--hm-accent);
+}
+
+.hm-check__input:checked::after {
+  content: '';
+  position: absolute;
+  top: 1px;
+  left: 4px;
+  width: 4px;
+  height: 7px;
+  border-style: solid;
+  border-width: 0 2px 2px 0;
+  border-color: var(--hm-accent);
+  transform: rotate(45deg);
+}
+
+.hm-check__input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.hm-check__label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--hm-text);
+}
+
+.hm-check__hint {
+  grid-column: 2;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--hm-muted);
+}
+
+/* Caution variant — the checkbox puts the resource into a degraded/holding
+   state (e.g. maintenance), so the label reads in the warning color. */
+.hm-check--warning .hm-check__label {
+  color: var(--hm-warning);
+}
+
+.hm-check--warning .hm-check__input:checked {
+  background: rgba(245, 158, 11, 0.1); /* --hm-warning @ 10% */
+  border-color: var(--hm-warning);
+}
+
+.hm-check--warning .hm-check__input:checked::after {
+  border-color: var(--hm-warning);
+}
+
+.hm-check--warning .hm-check__input:focus-visible {
+  border-color: var(--hm-warning);
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3); /* --hm-warning @ 30% */
+}
+
+/* === Toggle Switch === */
+.hm-toggle {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  border-radius: 11px;
+  background: var(--hm-border);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.hm-toggle--active {
+  background: var(--hm-accent);
+}
+
+.hm-toggle__thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.2s;
+}
+
+.hm-toggle--active .hm-toggle__thumb {
+  transform: translateX(18px);
+}
+
+/* === Pagination === */
+.hm-pagination-btn {
+  padding: 6px 12px;
+  background: var(--hm-surface);
+  border: 1px solid var(--hm-border);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--hm-text);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.hm-pagination-btn--active {
+  background: var(--hm-accent);
+  color: #0a0e17;
+  border-color: var(--hm-accent);
+}
+
+.hm-pagination-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* === Section Title with divider line === */
+.hm-section-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Syne', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--hm-muted);
+}
+
+.hm-section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--hm-border);
+}
+
+/* === Monitoring Badge === */
+.hm-monitor-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(124, 58, 237, 0.1));
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 11px;
+  color: var(--hm-text);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* === Error States === */
+.hm-empty-state {
+  text-align: center;
+  padding: 40px;
+  color: var(--hm-muted);
+  font-size: 13px;
+}
+
+/* === Banners === */
+.hm-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+}
+
+.hm-banner--error {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+}
+
+.hm-banner--warning {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  color: #f59e0b;
+}
+
+.hm-banner--info {
+  background: rgba(0, 212, 255, 0.08);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  color: var(--hm-accent);
+}
+
+.hm-banner--ok {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #10b981;
+}
+
+/* === Progress Bar === */
+.hm-progress {
+  height: 3px;
+  border-radius: 2px;
+  background: var(--hm-border);
+  overflow: hidden;
+}
+
+.hm-progress__bar {
+  height: 100%;
+  border-radius: 2px;
+  animation: hm-fill-in 1.2s ease forwards;
+}
+
+.hm-spinner {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: hm-spin 0.8s linear infinite;
+  box-sizing: border-box;
+}
+
+/* === Animations === */
+@keyframes hm-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+@keyframes hm-fill-in {
+  from {
+    width: 0;
+  }
+}
+
+@keyframes hm-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* === Scrollbar === */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--hm-border);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--hm-muted);
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* === Nuxt UI preset hooks (referenced by name in app.config.ts) === */
+.button-paddings {
+  padding: 0.375rem 0.75rem;
+}
+
+.button-icon {
+  width: 0.6rem;
+  height: 0.6rem;
+}
+
+.hide-range-thump {
+  appearance: none;
+  width: 0;
+  height: 0;
+}
+
+/* === Native input chrome resets === */
+input[type='range']::-webkit-slider-thumb {
+  appearance: none;
+  background: transparent;
+  border: none;
+  width: 0;
+  height: 0;
+}
+
+input[type='range']::-moz-range-thumb {
+  appearance: none;
+  background: transparent;
+  border: none;
+  width: 0;
+  height: 0;
+}
+
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+/* Override browser autofill background/text so it matches the dark theme.
+   Stacks two inset shadows: the 1000px one repaints the autofill background,
+   the 1px one redraws the border (Nuxt UI's UInput uses a ring, which the
+   autofill shadow would otherwise wipe out). */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:active,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:active {
+  -webkit-text-fill-color: var(--hm-text);
+  -webkit-box-shadow:
+    0 0 0 1px var(--hm-border) inset,
+    0 0 0 1000px var(--hm-bg) inset;
+  box-shadow:
+    0 0 0 1px var(--hm-border) inset,
+    0 0 0 1000px var(--hm-bg) inset;
+  caret-color: var(--hm-text);
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--hm-text);
+  -webkit-box-shadow:
+    0 0 0 1px var(--hm-accent) inset,
+    0 0 0 1000px var(--hm-bg) inset;
+  box-shadow:
+    0 0 0 1px var(--hm-accent) inset,
+    0 0 0 1000px var(--hm-bg) inset;
+  caret-color: var(--hm-text);
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+/* === Nuxt Icon module class === */
+.nuxt-icon svg {
+  fill: currentColor;
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+  .hm-canvas {
+    padding: 16px 16px 40px;
+    gap: 16px;
+  }
+
+  .hm-header {
+    padding: 16px 16px 12px;
+  }
+
+  .hm-footer {
+    padding: 12px 16px;
+    flex-wrap: wrap;
+  }
+
+  .hm-stat-card {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .hm-stat-cards {
+    flex-direction: column;
+  }
+}

@@ -102,15 +102,20 @@ onMounted(async () => {
   gap: 8px;
 }
 
+/* Grid with minmax(0, 1fr) tracks: the cells split the content width exactly, so the
+   row can never overflow past the modal padding (flex items keep their intrinsic
+   min-width and push the row to the right). */
 .hm-otp__row {
-  display: flex;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
   gap: 8px;
-  justify-content: space-between;
 }
 
 .hm-otp__cell {
-  flex: 1;
-  width: 46px;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
   height: 56px;
   padding: 0;
   text-align: center;

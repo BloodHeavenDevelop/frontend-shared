@@ -1,18 +1,21 @@
 {
   "name": "@bloodheaven/frontend-shared",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Shared Nuxt-layer BloodHeaven: canonical UI-primitives design-system (.hm-*)",
   "type": "module",
   "private": false,
   "files": [
+    "assets",
     "components",
     "pages",
+    "public",
     "nuxt.config.ts"
   ],
   "exports": {
     ".": {
       "import": "./nuxt.config.ts"
     },
+    "./assets/*": "./assets/*",
     "./components/*": "./components/*",
     "./pages/*": "./pages/*"
   },

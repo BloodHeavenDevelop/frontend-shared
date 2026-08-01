@@ -6,9 +6,18 @@ design-system (`components/ui/*`). Единый источник правды д
 в [README.md](README.md). Требования к дизайну — в корневом `DESIGN_MANIFEST.md`
 проекта и `DESIGN_SPECIFICATION.md` потребляющих репозиториев.
 
+Слой везёт и сам CSS дизайн-системы: `assets/styles/hm-base.css` (токены `--hm-*`, все
+`.hm-*` примитивы, `@font-face` и Tailwind-директивы) плюс `public/fonts/*.woff2`.
+Потребители подключают его первой строкой своего `assets/styles/main.css`
+(`@import '@bloodheaven/frontend-shared/assets/styles/hm-base.css';`) — не через `css:`
+в конфиге слоя, иначе база встанет ПОСЛЕ правил приложения. Подробности — в README.md.
+
 Правила:
 - Поверх `.hm-*` классов из DESIGN_MANIFEST.md; никаких Tailwind-only компонентов рядом
   с manifest-aligned. Для каждой UI-роли — ровно одна реализация.
+- Любое портируемое CSS-правило (новый примитив, токен, правка существующего класса) —
+  в `hm-base.css` здесь, а не в `main.css` потребителя. В приложении остаётся только
+  проектное: ширина канваса, auth-shell, оверрайд вендорного виджета.
 - Внутри слоя ссылки между ui-компонентами — **относительными** путями (`../X/...`),
   не `~/components/ui/...` (псевдоним `~` в слое указывает на потребляющее приложение).
 - Импорты `~/composables`, `~/stores`, `~/utils`, `~/types`, `~/constants`, `~/services`,
