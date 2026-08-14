@@ -28,6 +28,38 @@ SegmentedControl  Table  TableActions  TableInput  Toast  ToastsContainer
 
 Auto-import preserves the familiar names: `components/ui/Button/Button.vue` → `<UiButton>`.
 
+`composables/` — cross-app composables whose only dependency is a backend contract
+shared by the whole platform (not the design system, but equally duplicated
+otherwise). They are auto-imported in every consumer just like the components.
+
+| Composable      | What it does                                                              |
+| --------------- | ------------------------------------------------------------------------- |
+| `use-recaptcha` | Google reCAPTCHA Enterprise v3 (invisible): loads the loader script once, mints a token per action. Backend half: `utils/recaptcha`. |
+
+#### Captcha (`use-recaptcha`)
+
+The layer does not know where a service publishes its site key, so each app loads
+its own public config on boot and pushes the result in:
+
+```ts
+// plugins/00.captcha.ts — before any form can be submitted
+setRecaptchaConfig(await $fetch('/public/captcha', { baseURL: apiUrl }));
+```
+
+Forms then mint a token per submit; the action string must match the one the
+backend's `recaptcha.Middleware(action)` expects:
+
+```ts
+const { execute } = useRecaptcha();
+const recaptchaToken = await execute('opt_out'); // undefined while captcha is off
+await service.submit({ ...payload, recaptchaToken });
+```
+
+`execute()` resolves to `undefined` whenever captcha is disabled (development, or
+a deployment without Enterprise credentials), so the same call site works in both
+modes. The badge is a vendor widget — its dark-theme override stays in the app's
+`main.css` (see the rules below).
+
 ### What's deliberately not here (domain components)
 
 Only components whose `~/...` dependencies exist in **every** consuming application
