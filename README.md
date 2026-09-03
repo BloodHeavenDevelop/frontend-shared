@@ -22,8 +22,8 @@ cyrillic, Syne latin).
 ```
 AppIcon  AppLoadingIndicator  Badge  Banner  Button  ButtonBack  CircularLoader
 DatePicker  DateRangeFilter  EnvBulkInput  Form  FormInput  FormSelect  FormTextarea
-HmSelect  IconButton  Input  Modal  NavDropdown  PopupBox  PopupContainer  SearchInput
-SegmentedControl  Table  TableActions  TableInput  Toast  ToastsContainer
+HmSelect  IconButton  Input  MobileNav  Modal  NavDropdown  PopupBox  PopupContainer
+SearchInput  SegmentedControl  Table  TableActions  TableInput  Toast  ToastsContainer
 ```
 
 Auto-import preserves the familiar names: `components/ui/Button/Button.vue` → `<UiButton>`.
@@ -141,6 +141,41 @@ so once you remove the local `components/ui` those imports break. Two options:
 2. **Auto-import only.** Drop the explicit component imports (use `<UiX>` directly),
    and for the non-component exports (`useToasts`, the `TableColumn`/`ButtonVariant`/`BadgeVariant`
    types) move them into the layer's auto-imported directories. More work, cleaner result.
+
+## Mobility (≤ 768 px) — since v0.5.0
+
+The phone layout of every frontend is delivered from here, per
+`DESIGN_MANIFEST_MOBILITY.md`. Applications get most of it for free and must add
+exactly one thing.
+
+**Free, from `hm-base.css`:** the bezel drops, gutters become 16 px, the header goes
+sticky and sheds its nav links, the footer hides, buttons and toolbar icon buttons land
+on 44 px, form controls on 48 px at 16 px type (below that iOS Safari zooms the page),
+stat cards become a horizontal strip, every `.hm-modal` renders as a bottom sheet with a
+drag handle, and toasts move to the bottom edge above the tab bar.
+
+**Free, from the components:** `<UiTable>` renders its rows as cards (reusing the same
+`${key}-data` slots) with an explicit sort control and compact pagination.
+
+**The one required change** — mount the tab bar in `layouts/default.vue`, feeding it the
+nav entries the desktop header already computes:
+
+```vue
+<UiMobileNav
+  :entries="navEntries"
+  :profile-url="authGatewayUrl && !authDisabled ? `${authGatewayUrl}/profile` : ''"
+  :show-sign-out="!authDisabled"
+  :meta="{ version: appVersion, buildSha: shortSha, env: appEnv, online }"
+  @sign-out="signOut"
+/>
+```
+
+It renders nothing above 768 px. The first three flat routes become tabs; everything
+else — remaining routes, dropdown groups, *My Profile*, *Sign Out* and the footer's
+version/build/online/env slots — lands in the "More" sheet.
+
+**Do not** add a `@media (max-width: 768px)` block to an application's `main.css`: that
+is a fork of the design system. Portable mobile rules belong in `hm-base.css` here.
 
 ## Application contract (peer dependencies)
 

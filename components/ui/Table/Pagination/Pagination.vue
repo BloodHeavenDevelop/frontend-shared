@@ -2,22 +2,27 @@
 interface Props {
   total: number;
   pageSize: number;
+  /**
+   * Phone layout (mobility § M9.1): fewer page numbers and no first/last jumps,
+   * so seven 44px targets still fit inside a 360px viewport's gutters.
+   */
+  compact?: boolean;
 }
 
-const { total, pageSize } = defineProps<Props>();
+const { total, pageSize, compact = false } = defineProps<Props>();
 
 const currentPage = defineModel<number>({ default: 1 });
 
 const pages = computed(() => {
   const totalPages = Math.ceil(total / pageSize);
-  const maxVisible = 5;
+  const maxVisible = compact ? 3 : 5;
   const current = currentPage.value || 1;
 
   if (totalPages <= maxVisible) {
     return Array.from({ length: totalPages }, (_, i) => i + 1);
   }
 
-  let start = Math.max(current - 2, 1);
+  let start = Math.max(current - Math.floor(maxVisible / 2), 1);
   let end = start + maxVisible - 1;
 
   if (end > totalPages) {
@@ -52,8 +57,9 @@ const onPrevious = () => {
 </script>
 
 <template>
-  <div class="flex items-center gap-1">
+  <div class="flex items-center justify-center gap-1">
     <button
+      v-if="!compact"
       class="hm-pg-btn"
       :class="{ 'hm-pg-btn--disabled': currentPage === 1 }"
       :disabled="currentPage === 1"
@@ -103,6 +109,7 @@ const onPrevious = () => {
     </button>
 
     <button
+      v-if="!compact"
       class="hm-pg-btn"
       :class="{ 'hm-pg-btn--disabled': currentPage === totalPages }"
       :disabled="currentPage === totalPages"
@@ -150,5 +157,15 @@ const onPrevious = () => {
 .hm-pg-btn--disabled {
   opacity: 0.3;
   cursor: not-allowed;
+}
+
+/* Mobility § M9.1 / § M21 — page buttons are the densest tap targets in a list
+   view; they land on the touch floor like everything else. */
+@media (max-width: 768px) {
+  .hm-pg-btn {
+    min-width: 44px;
+    height: 44px;
+    font-size: 13px;
+  }
 }
 </style>

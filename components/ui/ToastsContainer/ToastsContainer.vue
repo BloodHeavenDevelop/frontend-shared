@@ -5,8 +5,10 @@ import { useToasts } from '../ToastsContainer/composables';
 const { toasts, remove } = useToasts();
 </script>
 <template>
+  <!-- `hm-toasts` is the hook the design system uses to re-anchor the stack above
+       the mobile tab bar (mobility § M15); desktop geometry stays in the utilities. -->
   <div
-    class="fixed bottom-6 right-6 flex flex-col-reverse gap-2 z-[100] w-full max-w-[420px] pointer-events-none"
+    class="hm-toasts fixed bottom-6 right-6 flex flex-col-reverse gap-2 z-[100] w-full max-w-[420px] pointer-events-none"
   >
     <TransitionGroup name="list">
       <component

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, ref, toRef } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, toRef } from 'vue';
 import type { RouteLocationRaw } from 'vue-router';
 
 import { NuxtLink } from '#components';
@@ -288,6 +288,50 @@ function toggleRowExpanded(id: string | number) {
   expandedRows.value = next;
 }
 
+/* ── Mobility (DESIGN_MANIFEST_MOBILITY.md § M8.2, § M9) ─────────────────────
+   A row of N columns has no phone form, so below the breakpoint the same rows
+   render as cards. The switch is a media query resolved on the client only: SSR
+   emits the desktop tree, the client swaps after mount, so hydration never sees
+   two different trees. Cards reuse the very same `${key}-data` slots — a card is
+   a re-layout of the table's content, never a second rendering path. */
+const isMobile = ref(false);
+let viewportQuery: MediaQueryList | null = null;
+
+function onViewportChange(event: MediaQueryList | MediaQueryListEvent) {
+  isMobile.value = event.matches;
+}
+
+onMounted(() => {
+  if (!import.meta.client) return;
+  viewportQuery = window.matchMedia('(max-width: 768px)');
+  onViewportChange(viewportQuery);
+  viewportQuery.addEventListener('change', onViewportChange);
+});
+
+onBeforeUnmount(() => {
+  viewportQuery?.removeEventListener('change', onViewportChange);
+});
+
+/** The first visible column titles the card; the rest become label/value rows. */
+const mobileTitleColumn = computed(() => displayColumns.value[0]);
+const mobileFieldColumns = computed(() => displayColumns.value.slice(1));
+
+/** Column headers are gone on a phone, so sorting gets an explicit control. */
+const sortableColumns = computed(() => displayColumns.value.filter((column) => !!column.sortBy));
+
+function onMobileSortChange(event: Event) {
+  const value = (event.target as HTMLSelectElement).value;
+  if (value) emit('update:sort', { sortBy: value });
+}
+
+function toggleSortDirection() {
+  if (props.sortBy) emit('update:sort', { sortBy: props.sortBy });
+}
+
+function rowLinkFor(row: Record<string, unknown>) {
+  return props.getRowLink ? props.getRowLink(row) : undefined;
+}
+
 const refreshTableData = () => {
   if (!props.tableDataKey) return;
   if (typeof refreshNuxtData === 'function') {
@@ -378,8 +422,9 @@ const refreshTableData = () => {
 
       <slot name="above-table" />
 
-      <!-- Table -->
+      <!-- Table (desktop) -->
       <div
+        v-if="!isMobile"
         class="hm-table-scroll relative pb-1"
         :class="[{ 'flex-1': rows.length === 0 && !loading }]"
       >
@@ -565,37 +610,111 @@ const refreshTableData = () => {
         </div>
       </div>
 
+      <!-- Cards (mobility § M8.2 / § M9) -->
+      <div
+        v-else
+        class="hm-mrows"
+        :class="[{ 'flex-1': rows.length === 0 && !loading }]"
+      >
+        <div
+          v-if="sortableColumns.length"
+          class="hm-msort"
+        >
+          <select
+            class="hm-select hm-msort__select"
+            :value="sortBy"
+            aria-label="Sort by"
+            @change="onMobileSortChange"
+          >
+            <option
+              v-for="column in sortableColumns"
+              :key="column.key"
+              :value="column.sortBy"
+            >
+              {{ column.label || column.key }}
+            </option>
+          </select>
+          <button
+            type="button"
+            class="hm-btn hm-btn--neutral hm-msort__dir"
+            :disabled="!sortBy"
+            :aria-label="`Sort ${sortDirection === 'asc' ? 'descending' : 'ascending'}`"
+            @click="toggleSortDirection"
+          >
+            {{ sortDirection === 'asc' ? '↑' : '↓' }}
+          </button>
+        </div>
+
+        <component
+          :is="rowLinkFor(row) ? NuxtLink : 'div'"
+          v-for="row in tableRows"
+          :key="row.id as string"
+          class="hm-mcard"
+          :to="rowLinkFor(row)"
+        >
+          <div
+            v-if="mobileTitleColumn"
+            class="hm-mcard__title"
+          >
+            <slot
+              :name="`${String(mobileTitleColumn.key)}-data`"
+              :row="row"
+            >
+              {{ row[mobileTitleColumn.key] || '-' }}
+            </slot>
+          </div>
+
+          <div
+            v-for="column in mobileFieldColumns"
+            :key="column.key"
+            class="hm-mcard__field"
+          >
+            <span class="hm-mcard__label">{{ column.label || column.key }}</span>
+            <span class="hm-mcard__value">
+              <slot
+                :name="`${String(column.key)}-data`"
+                :row="row"
+              >
+                {{ row[column.key] || '-' }}
+              </slot>
+            </span>
+          </div>
+        </component>
+      </div>
+
       <!-- Pagination -->
       <div
         v-if="rows.length"
         class="hm-pagination-bar"
       >
         <div class="hm-pagination-info">
-          <label>Rows per page:</label>
-          <USelectMenu
-            :model-value="rowsPerPage"
-            :options="pageRowsOptions"
-            size="xs"
-            class="h-[32px] shadow-none"
-            :popper="{ strategy: 'fixed', placement: 'bottom' }"
-            :ui="{
-              strategy: 'override',
-              padding: { xs: 'pl-[18px] pr-[18px] py-1.5' },
-              base: 'border border-hm-border rounded-[6px] text-hm-text bg-hm-surface',
-              icon: { base: 'hidden' },
-              size: { xs: 'text-[12px]' },
-              trailing: { padding: { xs: 'text-hm-text' } },
-              color: { white: { outline: 'shadow-none ring-0' } },
-            }"
-            :ui-menu="{
-              width: 'w-[80px]',
-              base: 'bg-hm-surface border border-hm-border',
-              option: {
-                base: 'hover:!bg-[rgba(0,212,255,0.08)] hover:!text-hm-accent rounded-none',
-              },
-            }"
-            @update:model-value="onRowsPerPageChange"
-          />
+          <div class="hm-pagination-rows">
+            <label>Rows per page:</label>
+            <USelectMenu
+              :model-value="rowsPerPage"
+              :options="pageRowsOptions"
+              size="xs"
+              class="h-[32px] shadow-none"
+              :popper="{ strategy: 'fixed', placement: 'bottom' }"
+              :ui="{
+                strategy: 'override',
+                padding: { xs: 'pl-[18px] pr-[18px] py-1.5' },
+                base: 'border border-hm-border rounded-[6px] text-hm-text bg-hm-surface',
+                icon: { base: 'hidden' },
+                size: { xs: 'text-[12px]' },
+                trailing: { padding: { xs: 'text-hm-text' } },
+                color: { white: { outline: 'shadow-none ring-0' } },
+              }"
+              :ui-menu="{
+                width: 'w-[80px]',
+                base: 'bg-hm-surface border border-hm-border',
+                option: {
+                  base: 'hover:!bg-[rgba(0,212,255,0.08)] hover:!text-hm-accent rounded-none',
+                },
+              }"
+              @update:model-value="onRowsPerPageChange"
+            />
+          </div>
 
           <span>
             Showing {{ (page - 1) * rowsPerPage + 1 }} to
@@ -608,6 +727,7 @@ const refreshTableData = () => {
           :model-value="props.page"
           :page-size="rowsPerPage"
           :total="itemsCount ?? 0"
+          :compact="isMobile"
           @update:model-value="onPageChange"
         />
       </div>
@@ -920,5 +1040,134 @@ const refreshTableData = () => {
 
 .hm-pagination-info label {
   color: var(--hm-muted);
+}
+
+.hm-pagination-rows {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Mobility (DESIGN_MANIFEST_MOBILITY.md § M8.2, § M9, § M11) ───────────── */
+.hm-mrows {
+  display: none;
+}
+
+.hm-mcard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  /* Inside the container's --hm-surface, so the card recesses to --hm-bg (§ 8.5). */
+  background: var(--hm-bg);
+  border: 1px solid var(--hm-border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  min-height: 56px;
+  text-decoration: none;
+  color: var(--hm-text);
+}
+
+.hm-mcard__title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--hm-text);
+  overflow-wrap: anywhere;
+}
+
+.hm-mcard__field {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hm-mcard__label {
+  flex: 0 0 auto;
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--hm-muted);
+}
+
+.hm-mcard__value {
+  min-width: 0;
+  text-align: right;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--hm-text);
+  overflow-wrap: anywhere;
+}
+
+.hm-msort {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hm-msort__select {
+  flex: 1;
+}
+
+.hm-msort__dir {
+  flex: 0 0 auto;
+  width: 48px;
+}
+
+@media (max-width: 768px) {
+  .hm-table-container {
+    padding: 12px;
+    border-radius: 10px;
+  }
+
+  /* § M11 — the toolbar wraps into two full-width rows; the search is no longer
+     competing with a table for horizontal room, so it takes the whole row. */
+  .hm-controls-bar {
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .hm-controls-bar__left,
+  .hm-controls-bar__right {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .hm-controls-bar__right {
+    justify-content: flex-end;
+  }
+
+  .hm-controls-search {
+    width: 100%;
+    height: var(--hm-control-height);
+    font-size: 16px;
+  }
+
+  .hm-mrows {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-bottom: 4px;
+  }
+
+  /* § M9.1 — the verbose page-size control is a desktop affordance; the range
+     summary stays, because it is the only cue for how long the list is. */
+  .hm-pagination-rows {
+    display: none;
+  }
+
+  .hm-pagination-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .hm-pagination-info {
+    justify-content: center;
+    font-size: 11px;
+  }
 }
 </style>

@@ -101,6 +101,25 @@ const onSelect = (value: T, disabled?: boolean) => {
   color: var(--hm-accent);
 }
 
+/* Mobility § M13 — the control spans the row and its items share the width, so
+   every option is a real target instead of a 40px sliver. */
+@media (max-width: 768px) {
+  .hm-segmented {
+    display: flex;
+    width: 100%;
+  }
+
+  .hm-segmented__item {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .hm-segmented--md .hm-segmented__item,
+  .hm-segmented--sm .hm-segmented__item {
+    height: 40px;
+  }
+}
+
 .hm-segmented__item--disabled {
   opacity: 0.4;
   cursor: not-allowed;

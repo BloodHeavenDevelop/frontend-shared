@@ -67,4 +67,20 @@ withDefaults(defineProps<Props>(), {
 .hm-icon-btn--custom {
   padding: 0;
 }
+
+/* Mobility § M7 — the target grows to the touch floor, the glyph inside does not.
+   "custom" is excluded: its geometry belongs to the call site by definition. */
+@media (max-width: 768px) {
+  .hm-icon-btn--toolbar {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+  }
+
+  .hm-icon-btn--ghost {
+    width: 44px;
+    height: 44px;
+    border-radius: 6px;
+  }
+}
 </style>

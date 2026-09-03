@@ -1274,28 +1274,291 @@ select:-webkit-autofill:focus {
   fill: currentColor;
 }
 
-/* === Responsive === */
+/* === Bottom tab bar (mobility § M4.2) ===
+   Rendered by <UiMobileNav>, which every application's default layout mounts once.
+   Hidden above the breakpoint: the desktop header carries navigation there. */
+.hm-tabbar {
+  display: none;
+}
+
+/* Body scroll lock while a sheet is open (mobility § M4.3, § M14). */
+.hm-scroll-lock {
+  overflow: hidden;
+}
+
+/* ============================================================
+   Mobility — see DESIGN_MANIFEST_MOBILITY.md
+   One breakpoint, 768px, matching the parent manifest § 2.6.
+   Everything here is geometry: the palette, the typefaces and the
+   grid overlay are identical on both sides of the breakpoint.
+   ============================================================ */
 @media (max-width: 768px) {
+  :root {
+    /* § M1.2 — touch geometry */
+    --hm-control-height: 48px;
+    --hm-touch-min: 48px;
+    --hm-tabbar-height: 56px;
+    --hm-safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* § M2.1 — the viewport bezel is dropped: 16px of a 360px viewport is 4.4% of
+     the width, and a black border cannot coexist with the safe-area insets. */
+  body {
+    border-width: 0;
+  }
+
+  /* § M2.3 — gutters; the canvas reserves the tab bar so the last row of content
+     is never trapped underneath it. */
   .hm-canvas {
-    padding: 16px 16px 40px;
+    padding: 12px 16px calc(24px + var(--hm-tabbar-height) + var(--hm-safe-bottom));
     gap: 16px;
   }
 
+  /* § M4.1 — the header keeps the logo and the page-actions teleport target only.
+     `:not(#header-actions)` is deliberate: the target must stay in the DOM even
+     when empty, or a page teleporting into it throws. */
   .hm-header {
-    padding: 16px 16px 12px;
-  }
-
-  .hm-footer {
+    position: sticky;
+    top: 0;
     padding: 12px 16px;
-    flex-wrap: wrap;
+    background: linear-gradient(180deg, rgba(0, 212, 255, 0.04) 0%, transparent 100%), var(--hm-bg);
   }
 
-  .hm-stat-card {
-    min-width: unset;
+  .hm-header__logo {
+    font-size: 18px;
+  }
+
+  .hm-header__nav > *:not(#header-actions) {
+    display: none;
+  }
+
+  /* § M6 — no footer: its three slots are relocated into the nav sheet. */
+  .hm-footer {
+    display: none;
+  }
+
+  /* § M4.2 — tab bar */
+  .hm-tabbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 90;
+    display: flex;
+    align-items: stretch;
+    background: var(--hm-surface);
+    border-top: 1px solid var(--hm-border);
+    padding-bottom: var(--hm-safe-bottom);
+  }
+
+  .hm-tabbar__item {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: var(--hm-tabbar-height);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 6px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    color: var(--hm-muted);
+    transition: color 0.15s;
+  }
+
+  .hm-tabbar__label {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Active state carries two channels — colour and the top bar — because colour
+     alone fails for the colour-blind (§ M4.2). */
+  .hm-tabbar__item--active {
+    color: var(--hm-accent);
+  }
+
+  .hm-tabbar__item--active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--hm-accent);
+  }
+
+  .hm-tabbar__item:active {
+    background: rgba(0, 212, 255, 0.08);
+  }
+
+  /* § M7 — touch geometry for buttons; icons keep their size, targets grow. */
+  .hm-btn {
+    height: 44px;
+    padding: 0 16px;
+    font-size: 12px;
+  }
+
+  .hm-btn--sm {
+    height: 36px;
+    padding: 0 12px;
+    font-size: 11px;
+  }
+
+  /* DOM order stays [Cancel] [Primary]; column-reverse renders the primary on top,
+     so the reflex tap at the bottom edge is never the destructive one. */
+  .hm-form-actions,
+  .hm-modal__footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .hm-form-actions > *,
+  .hm-modal__footer > * {
     width: 100%;
   }
 
+  .hm-nav-link {
+    min-height: 44px;
+    font-size: 12px;
+  }
+
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* § M3 / § M10 — 16px is not cosmetic: below it iOS Safari zooms the viewport on
+     focus and never zooms back. */
+  .hm-input,
+  .hm-textarea,
+  .hm-select {
+    font-size: 16px;
+    padding: 12px 14px;
+  }
+
+  .hm-select {
+    padding-right: 36px;
+  }
+
+  .hm-form-label {
+    font-size: 12px;
+  }
+
+  /* § M8.1 — stat cards become a horizontally scrolling strip. The negative margin
+     cancels the canvas gutter and the padding restores it, so the first card stays
+     aligned with the content above. */
   .hm-stat-cards {
-    flex-direction: column;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 8px;
+    margin: 0 -16px;
+    padding: 0 16px;
+    scrollbar-width: none;
+  }
+
+  .hm-stat-cards::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hm-stat-card {
+    flex: 0 0 auto;
+    min-width: 128px;
+    padding: 12px 16px;
+  }
+
+  /* § M14 — a modal becomes a bottom sheet. Applies to every modal in every app
+     because they all render .hm-modal-overlay + .hm-modal. */
+  .hm-modal-overlay {
+    align-items: flex-end;
+  }
+
+  .hm-modal,
+  .hm-modal--sm {
+    width: 100%;
+    max-width: 100%;
+    max-height: 92vh;
+    border-radius: 16px 16px 0 0;
+    border-bottom: none;
+    padding: 16px 16px calc(20px + var(--hm-safe-bottom));
+    box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.4);
+  }
+
+  /* The drag handle is drawn, not authored, so no app has to add markup for it. */
+  .hm-modal::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 4px;
+    margin: 0 auto 12px;
+    border-radius: 2px;
+    background: var(--hm-border);
+  }
+
+  .hm-modal__title {
+    margin-bottom: 16px;
+  }
+
+  /* § M15 — toasts move from the bottom-right corner to the bottom edge, offset
+     above the tab bar and the home indicator. */
+  .hm-toasts {
+    left: 16px;
+    right: 16px;
+    bottom: calc(var(--hm-tabbar-height) + var(--hm-safe-bottom) + 8px);
+    max-width: none;
+  }
+
+  .hm-empty-state {
+    padding: 32px 16px;
+  }
+
+  .hm-pagination-btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .hm-monitor-badge {
+    min-height: 44px;
+  }
+}
+
+/* § M1.3 — mobile browsers leave :hover applied after a tap until the next tap
+   elsewhere. Interaction feedback that must not stick is undone where there is no
+   real pointer; :active carries the press instead. */
+@media (hover: none) {
+  .hm-table tbody tr:hover {
+    background: transparent;
+  }
+
+  .hm-nav-link:hover {
+    background: transparent;
+    color: var(--hm-muted);
+  }
+
+  .hm-nav-link--active:hover {
+    background: rgba(0, 212, 255, 0.08);
+    color: var(--hm-accent);
+  }
+
+  .hm-nav-link:active {
+    background: rgba(0, 212, 255, 0.08);
+    color: var(--hm-accent);
+  }
+
+  .hm-btn:active:not(:disabled) {
+    opacity: 0.85;
   }
 }
