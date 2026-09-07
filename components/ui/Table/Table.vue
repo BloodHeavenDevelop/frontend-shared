@@ -690,18 +690,18 @@ const refreshTableData = () => {
         <div class="hm-pagination-info">
           <div class="hm-pagination-rows">
             <label>Rows per page:</label>
+            <!-- Skin and panel come from the layer's `app.config.ts` (variant `hm`);
+                 all that belongs here is the 32px height that lines the trigger up
+                 with the page buttons, and a width that does not jump between "10"
+                 and "100". Never override the trigger's inline-end padding: the
+                 chevron is absolutely positioned at the trigger's end, and that
+                 padding is the only room reserved for it. -->
             <USelectMenu
               :model-value="rowsPerPage"
               :items="pageRowsOptions"
               :search-input="false"
               size="xs"
-              class="h-[32px] shadow-none"
-              :ui="{
-                base: 'h-[32px] pl-[18px] pr-[18px] py-1.5 text-[12px] ring-0 border border-hm-border rounded-[6px] text-hm-text bg-hm-surface shadow-none',
-                content: 'w-[80px] bg-hm-surface border border-hm-border',
-                item: 'rounded-none',
-                trailingIcon: 'text-hm-text',
-              }"
+              class="h-[32px] w-[72px] min-h-0 py-0"
               @update:model-value="onRowsPerPageChange"
             />
           </div>
