@@ -9,11 +9,11 @@ interface Props {
   ui?: Record<string, any>;
 }
 
+// `size` and `variant` are resolved from the theme's `defaultVariants` — see the
+// note in FormInput.vue.
 const props = withDefaults(defineProps<Props>(), {
   placeholder: 'Type here',
   disabled: false,
-  size: '2xs',
-  variant: '2xs',
   rows: 3,
 });
 
@@ -21,19 +21,12 @@ const emit = defineEmits<{
   'update:modelValue': [value: string | undefined];
 }>();
 
-const appConfig = useAppConfig();
-const globalBase = (appConfig.ui as Record<string, any>)?.textarea?.base || '';
-
-const mergedUi = computed(() => {
-  const userBase = props.ui?.base || '';
-  // DESIGN_MANIFEST § 10.5: textarea min-height 80px, vertical resize only.
-  const combinedBase = [globalBase, userBase, 'min-h-[80px] resize-y'].filter(Boolean).join(' ');
-
-  return {
-    ...props.ui,
-    base: combinedBase,
-  };
-});
+// DESIGN_MANIFEST § 10.5: textarea min-height 80px, vertical resize only. Appended
+// after any caller-supplied `base` so it wins on the conflicting properties.
+const mergedUi = computed(() => ({
+  ...props.ui,
+  base: [props.ui?.base, 'min-h-[80px] resize-y'].filter(Boolean).join(' '),
+}));
 
 const localValue = computed({
   get: () => props.modelValue,

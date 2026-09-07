@@ -20,6 +20,52 @@
    widget override — stays in that application's `main.css`.
    ============================================ */
 
+/* Tailwind 4. This has to be the first rule in the file: `@import` is only legal
+   before any other at-rule, so it cannot sit next to the `@layer base` block the
+   way Tailwind 3's `@tailwind base` did. */
+@import 'tailwindcss';
+
+/* Nuxt UI's own half of the stylesheet: its design tokens and, more importantly,
+   the `@source` directives for its component library. Without this Tailwind never
+   scans `node_modules/@nuxt/ui`, so the classes its themes emit — `rounded-md` and
+   the whole `ring` group among them — are present in the markup and missing from
+   the CSS, which reads as controls that lost their corners and borders. */
+@import '@nuxt/ui';
+
+/* Tailwind 4 discovers the classes it must generate by scanning source files, and
+   it deliberately skips `node_modules` — which is exactly where this layer lands in
+   every consuming app. Without this the utilities used inside `components/ui/*`
+   would silently generate nothing. The paths are relative to this file, so they
+   point at the layer's own sources whether it is consumed from a checkout or from
+   a package install. `app.config.ts` is on the list because the Nuxt UI theme lives
+   there — the classes it names appear nowhere else, and without it the themed
+   controls come out unstyled. */
+@source '../../components';
+@source '../../pages';
+@source '../../app.config.ts';
+
+/* The `hm-*` Tailwind colour scale, so `bg-hm-surface` / `text-hm-muted` /
+   `ring-hm-border` resolve. Under Tailwind 3 every application repeated this as a
+   `tailwindcss.config.theme.extend.colors` block in its own `nuxt.config.ts`; the
+   scale is portable, so it belongs here with the tokens it points at. The values
+   stay indirected through the `--hm-*` custom properties below — those remain the
+   design system's public API, used by every plain-CSS rule in this file. */
+@theme {
+  --color-hm-bg: var(--hm-bg);
+  --color-hm-surface: var(--hm-surface);
+  --color-hm-border: var(--hm-border);
+  --color-hm-accent: var(--hm-accent);
+  --color-hm-text: var(--hm-text);
+  --color-hm-muted: var(--hm-muted);
+  --color-hm-ok: var(--hm-ok);
+  --color-hm-error: var(--hm-error);
+  --color-hm-active: var(--hm-active);
+  --color-hm-paused: var(--hm-paused);
+  --color-hm-warning: var(--hm-warning);
+  --color-hm-purple: var(--hm-purple);
+  --color-hm-purple-l: var(--hm-purple-l);
+}
+
 /* === Font Faces === */
 @font-face {
   font-family: 'JetBrains Mono';
@@ -52,8 +98,6 @@
     U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-@tailwind base;
-
 @layer base {
   :root {
     /* Design Manifest — CSS Custom Properties */
@@ -78,8 +122,39 @@
   }
 }
 
-@tailwind components;
-@tailwind utilities;
+/* Nuxt UI's semantic tokens, pointed at the design system's own.
+   Every Nuxt UI component resolves its colours through these, so mapping them once
+   here is what makes an unstyled `<UCheckbox>` or `<UFormField>` come out in the
+   design system's palette instead of the library's default green-on-white. It is
+   also why the per-component theming in this layer's `app.config.ts` stays short:
+   only genuine deviations (the toolbar control height, the accent-on-hover ring)
+   need to be spelled out. */
+:root {
+  --ui-bg: var(--hm-bg);
+  --ui-bg-muted: var(--hm-surface);
+  --ui-bg-elevated: var(--hm-surface);
+  --ui-bg-accented: var(--hm-surface);
+  --ui-bg-inverted: var(--hm-text);
+
+  --ui-border: var(--hm-border);
+  --ui-border-muted: var(--hm-border);
+  --ui-border-accented: var(--hm-border);
+  --ui-border-inverted: var(--hm-text);
+
+  --ui-text: var(--hm-text);
+  --ui-text-highlighted: var(--hm-text);
+  --ui-text-toned: var(--hm-text);
+  --ui-text-muted: var(--hm-muted);
+  --ui-text-dimmed: var(--hm-muted);
+  --ui-text-inverted: var(--hm-bg);
+
+  --ui-primary: var(--hm-accent);
+  --ui-secondary: var(--hm-active);
+  --ui-success: var(--hm-ok);
+  --ui-info: var(--hm-active);
+  --ui-warning: var(--hm-warning);
+  --ui-error: var(--hm-error);
+}
 
 /* === Base Styles === */
 :root {

@@ -32,6 +32,15 @@ const emit = defineEmits<{
   'update:modelValue': [value: string | number | undefined];
 }>();
 
+// The panel skin lives in the layer's app.config.ts, so all that is left per
+// instance is the toolbar height. It used to be a global `!important` stylesheet
+// aimed at the trigger `<button>`: under Nuxt UI 2 the `ui` prop replaced rather
+// than merged, so there was no way to reach the trigger from here. Nuxt UI 4 merges
+// slot classes, which is exactly what this needs.
+const mergedUi = computed(() =>
+  props.filter ? { base: 'h-[30px] min-h-0 py-0 leading-none' } : undefined,
+);
+
 const localValue = computed({
   get: () => props.modelValue,
   set: (value) => emit('update:modelValue', value),
@@ -42,31 +51,16 @@ const localValue = computed({
   <USelectMenu
     v-model="localValue"
     v-bind="$attrs"
-    :options="options"
+    :items="options"
     :placeholder="placeholder"
     :disabled="disabled"
-    :searchable="searchable"
+    :search-input="searchable"
     :loading="loading"
-    :size="size"
-    option-attribute="label"
-    value-attribute="value"
+    :size="size as any"
+    label-key="label"
+    value-key="value"
     class="w-full"
-    :class="{ 'ui-form-select--filter': filter }"
-    :ui-menu="{
-      strategy: 'override',
-      background: 'bg-hm-surface',
-      ring: 'ring-1 ring-hm-border',
-      rounded: 'rounded-lg',
-      option: {
-        color: 'text-hm-text',
-        rounded: 'rounded-none',
-        active: 'bg-[rgba(0,212,255,0.08)] text-hm-accent',
-        selected: 'pe-7 text-hm-accent',
-        selectedIcon: {
-          base: 'h-4 w-4 text-hm-accent flex-shrink-0',
-        },
-      },
-    }"
+    :ui="mergedUi"
   >
     <template
       v-for="(_, name) in $slots"
@@ -79,31 +73,3 @@ const localValue = computed({
     </template>
   </USelectMenu>
 </template>
-
-<!-- Global (NOT scoped) on purpose: the trigger is a <button> rendered deep inside
-     the Nuxt UI select, and a scoped `:deep()` rule compiles to a selector keyed on
-     this component's data-v scope id — which the library's root doesn't reliably
-     carry, so the rule never matches. A plain class selector + !important lands
-     regardless of scope and out-weights Nuxt UI's higher-specificity `dark:` colour
-     defaults (`.dark .dark:bg-gray-900` etc). The `.ui-form-select--filter` class is
-     only ever on filter selects, so this can't leak to other selects. -->
-<style>
-/* Toolbar filter trigger: a pixel-twin of the sibling .hm-input / .hm-controls-search
-   filters — 30px height (lines up with the search input and buttons), mono 12px,
-   8px radius, hm-bg background and a 1px hm-border ring that turns accent on focus. */
-.ui-form-select--filter button {
-  height: 30px !important;
-  min-height: 30px !important;
-  padding: 0 14px !important;
-  border-radius: 8px !important;
-  font-family: 'JetBrains Mono', monospace !important;
-  font-size: 12px !important;
-  background: var(--hm-bg) !important;
-  box-shadow: inset 0 0 0 1px var(--hm-border) !important;
-}
-
-.ui-form-select--filter button:focus {
-  box-shadow: inset 0 0 0 1px var(--hm-accent) !important;
-  outline: none !important;
-}
-</style>

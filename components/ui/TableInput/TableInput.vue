@@ -15,27 +15,12 @@ const emit = defineEmits<{
   'update:modelValue': [value: string | number | undefined];
 }>();
 
-const appConfig = useAppConfig();
-const globalBase = (appConfig.ui as Record<string, any>)?.input?.base || '';
-
-const defaultUi = {
-  padding: {
-    strategy: 'override',
-    xs: 'px-[8px] py-[7px]',
-  },
-};
-
-const mergedUi = computed(() => {
-  const userBase = props.ui?.base || '';
-  const combinedBase = [globalBase, userBase].filter(Boolean).join(' ');
-
-  return {
-    ...defaultUi,
-    ...props.ui,
-    base: combinedBase,
-    padding: props.ui?.padding ?? defaultUi.padding,
-  };
-});
+// A cell-sized control: tighter than the `xs` theme size, because it has to sit
+// inside a table row without changing the row's height.
+const mergedUi = computed(() => ({
+  ...props.ui,
+  base: [props.ui?.base, 'px-[8px] py-[7px]'].filter(Boolean).join(' '),
+}));
 
 const localValue = computed({
   get: () => props.modelValue,

@@ -692,25 +692,15 @@ const refreshTableData = () => {
             <label>Rows per page:</label>
             <USelectMenu
               :model-value="rowsPerPage"
-              :options="pageRowsOptions"
+              :items="pageRowsOptions"
+              :search-input="false"
               size="xs"
               class="h-[32px] shadow-none"
-              :popper="{ strategy: 'fixed', placement: 'bottom' }"
               :ui="{
-                strategy: 'override',
-                padding: { xs: 'pl-[18px] pr-[18px] py-1.5' },
-                base: 'border border-hm-border rounded-[6px] text-hm-text bg-hm-surface',
-                icon: { base: 'hidden' },
-                size: { xs: 'text-[12px]' },
-                trailing: { padding: { xs: 'text-hm-text' } },
-                color: { white: { outline: 'shadow-none ring-0' } },
-              }"
-              :ui-menu="{
-                width: 'w-[80px]',
-                base: 'bg-hm-surface border border-hm-border',
-                option: {
-                  base: 'hover:!bg-[rgba(0,212,255,0.08)] hover:!text-hm-accent rounded-none',
-                },
+                base: 'h-[32px] pl-[18px] pr-[18px] py-1.5 text-[12px] ring-0 border border-hm-border rounded-[6px] text-hm-text bg-hm-surface shadow-none',
+                content: 'w-[80px] bg-hm-surface border border-hm-border',
+                item: 'rounded-none',
+                trailingIcon: 'text-hm-text',
               }"
               @update:model-value="onRowsPerPageChange"
             />

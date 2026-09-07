@@ -9,30 +9,18 @@ interface Props {
   ui?: Record<string, any>;
 }
 
+// `size` and `variant` are deliberately left undefined: Nuxt UI resolves them from
+// the theme's `defaultVariants` (see the layer's app.config.ts), so the design
+// system decides the default in one place instead of every wrapper repeating it.
 const props = withDefaults(defineProps<Props>(), {
   placeholder: 'Type here',
   type: 'text',
   disabled: false,
-  size: '2xs',
-  variant: '2xs',
 });
 
 const emit = defineEmits<{
   'update:modelValue': [value: string | number | undefined];
 }>();
-
-const appConfig = useAppConfig();
-const globalBase = (appConfig.ui as Record<string, any>)?.input?.base || '';
-
-const mergedUi = computed(() => {
-  const userBase = props.ui?.base || '';
-  const combinedBase = [globalBase, userBase].filter(Boolean).join(' ');
-
-  return {
-    ...props.ui,
-    base: combinedBase,
-  };
-});
 
 const localValue = computed({
   get: () => props.modelValue,
@@ -49,7 +37,7 @@ const localValue = computed({
     :disabled="disabled"
     :size="size as any"
     :variant="variant as any"
-    :ui="mergedUi"
+    :ui="ui"
   >
     <template
       v-for="(_, name) in $slots"

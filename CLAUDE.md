@@ -7,7 +7,20 @@ design-system (`components/ui/*`). Единый источник правды д
 проекта и `DESIGN_SPECIFICATION.md` потребляющих репозиториев.
 
 Слой везёт и сам CSS дизайн-системы: `assets/styles/hm-base.css` (токены `--hm-*`, все
-`.hm-*` примитивы, `@font-face` и Tailwind-директивы) плюс `public/fonts/*.woff2`.
+`.hm-*` примитивы, `@font-face` и вход в Tailwind 4) плюс `public/fonts/*.woff2`.
+
+Tailwind 4 конфигурируется из CSS, и всё это живёт в `hm-base.css`:
+`@import 'tailwindcss'` первой строкой (`@import` легален только до других правил),
+следом `@import '@nuxt/ui'`, `@source` на `components/`, `pages/` и `app.config.ts`
+слоя, шкала `hm-*` в `@theme` и мост `--ui-* → --hm-*`. Два `@source`/`@import` —
+не украшение: Tailwind 4 не сканирует `node_modules`, где слой и `@nuxt/ui` и лежат
+у потребителя, поэтому без них классы есть в разметке и отсутствуют в CSS.
+
+Тема `@nuxt/ui` — в `app.config.ts` слоя. Nuxt мержит app-конфиги слоёв под конфиг
+приложения, так что дизайн-система описана один раз на всю платформу; в приложении
+`ui`-блока быть не должно, только его собственное (`authUi`). Темы `@nuxt/ui` 4 — это
+Tailwind Variants (`slots`/`variants`), и мержатся поверх библиотечных, поэтому в
+блоках только отклонения.
 Потребители подключают его первой строкой своего `assets/styles/main.css`
 (`@import '@bloodheaven/frontend-shared/assets/styles/hm-base.css';`) — не через `css:`
 в конфиге слоя, иначе база встанет ПОСЛЕ правил приложения. Подробности — в README.md.

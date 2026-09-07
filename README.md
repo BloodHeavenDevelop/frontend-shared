@@ -12,8 +12,15 @@ components and the stylesheet they assume from one place.
 
 ## What's inside
 
-`assets/styles/hm-base.css` — the design system itself: the `@font-face` declarations,
-the `--hm-*` tokens, every `.hm-*` primitive and the Tailwind directives.
+`assets/styles/hm-base.css` — the design system itself: the Tailwind 4 entry
+(`@import 'tailwindcss'` + `@import '@nuxt/ui'` + the `@source` directives that make
+Tailwind look inside this package at all), the `hm-*` colour scale in `@theme`, the
+`--ui-* → --hm-*` bridge that gives every Nuxt UI component the design system's palette,
+the `@font-face` declarations, the `--hm-*` tokens and every `.hm-*` primitive.
+
+`app.config.ts` — the Nuxt UI theme for the whole platform. Nuxt merges a layer's app
+config underneath the application's, so this is where the design system's Tailwind
+Variants blocks live; a consuming app should carry no `ui` key of its own.
 `public/fonts/*.woff2` — the fonts that stylesheet declares (JetBrains Mono latin +
 cyrillic, Syne latin).
 
@@ -178,6 +185,11 @@ version/build/online/env slots — lands in the "More" sheet.
 is a fork of the design system. Portable mobile rules belong in `hm-base.css` here.
 
 ## Application contract (peer dependencies)
+
+The layer declares `@nuxt/ui` (`^4.11.0`) as a peer alongside `nuxt`, `yup`, `date-fns`
+and `@vuepic/vue-datepicker`: `FormInput`, `FormTextarea`, `FormSelect`, `TableInput`,
+`Form` and `Table` are built on it. It was an undeclared peer until 0.6.0 — the apps
+happened to install it for themselves.
 
 Some components reach for modules that **stay in each application** (deliberately not
 in the layer — that's domain code, not design system). With `extends`, the `~` alias
