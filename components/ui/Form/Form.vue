@@ -1,7 +1,8 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
 import type { ObjectSchema } from 'yup';
 
-type FormEventType = 'input' | 'change' | 'submit' | 'blur';
+// `UForm` always validates on submit; these are the extra triggers it accepts.
+type FormEventType = 'input' | 'change' | 'blur' | 'focus';
 
 interface Emits {
   (e: 'submit', value: T): void;
@@ -16,7 +17,13 @@ interface Props {
 const emit = defineEmits<Emits>();
 const { validationSchema, disabled, customValidateTriggers } = defineProps<Props>();
 
-const formState = defineModel<T>({ default: {}, required: true });
+const formState = defineModel<T>({ required: true });
+
+// `UForm` derives its state type from the schema, which it cannot relate back to the
+// generic `T`; hand it the schema widened so the model binds without a cast per field.
+const uiSchema = computed(
+  () => validationSchema as ObjectSchema<Record<string, any>> | undefined,
+);
 
 const validateField = async (field: keyof T) => {
   if (!validationSchema) return true;
@@ -75,8 +82,8 @@ watch(
     :state="formState"
     class="hm-form flex flex-col gap-4"
     :class="{ 'pointer-events-none': disabled, 'opacity-50': disabled }"
-    :schema="validationSchema"
-    :validate-on="customValidateTriggers ?? ['submit']"
+    :schema="uiSchema"
+    :validate-on="customValidateTriggers ?? []"
     @submit="onSubmit"
   >
     <slot />

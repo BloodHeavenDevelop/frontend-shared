@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="Row extends Record<string, any>">
 import { computed, onBeforeUnmount, onMounted, ref, toRef } from 'vue';
 import type { RouteLocationRaw } from 'vue-router';
 
@@ -10,7 +10,7 @@ import { useTableColumnPreferences } from '~/composables/use-table-column-prefer
 const props = withDefaults(
   defineProps<{
     columns: TableColumn<string>[];
-    rows?: Record<string, unknown>[];
+    rows?: Row[];
     itemsCount: number;
     page: number;
     rowsPerPage: number;
@@ -19,7 +19,7 @@ const props = withDefaults(
     globalSearch?: string;
     noActionRow?: boolean; // deprecated — action column removed by default
     loading?: boolean;
-    getRowLink?: (row: Record<string, unknown>) => RouteLocationRaw | null | undefined;
+    getRowLink?: (row: Row) => RouteLocationRaw | null | undefined;
     inputSearchClass?: string;
     cellClass?: string;
     tableDataKey?: string;
@@ -50,7 +50,7 @@ const emit = defineEmits<{
   (e: 'reset-filters' | 'refresh-table' | 'download-csv'): void;
 }>();
 
-const pageRowsOptions = [10, 20, 50, 100] as unknown as string[];
+const pageRowsOptions = [10, 20, 50, 100];
 
 const tableRows = computed(() => props.rows ?? []);
 
@@ -79,7 +79,7 @@ function getFilterComponent(column: TableColumn<string>) {
   return 'input';
 }
 
-function getCellClasses(column: TableColumn<string>, row: Record<string, unknown>) {
+function getCellClasses(column: TableColumn<string>, row: Row) {
   const expanded = column.expandable && isRowExpanded(row?.id as string | number);
   const classes: string[] = [];
 
@@ -328,7 +328,7 @@ function toggleSortDirection() {
   if (props.sortBy) emit('update:sort', { sortBy: props.sortBy });
 }
 
-function rowLinkFor(row: Record<string, unknown>) {
+function rowLinkFor(row: Row) {
   return props.getRowLink ? props.getRowLink(row) : undefined;
 }
 
