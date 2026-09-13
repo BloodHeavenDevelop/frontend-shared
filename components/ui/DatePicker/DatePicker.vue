@@ -2,6 +2,7 @@
 import '@vuepic/vue-datepicker/dist/main.css';
 
 import VueDatePicker from '@vuepic/vue-datepicker';
+import { computed } from 'vue';
 
 type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -19,7 +20,7 @@ interface Props {
   locale?: string;
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   inTable: false,
   isRange: false,
   isClearable: true,
@@ -29,6 +30,19 @@ withDefaults(defineProps<Props>(), {
 });
 
 const model = defineModel<Date | Date[] | null>({ default: null });
+
+// A date-fns pattern (`dd MMM yy`) would name months in English whatever `locale`
+// says, so the input is written through Intl in the given locale (`13 сент. 26 г.`).
+const INPUT_DATE_FORMAT: Intl.DateTimeFormatOptions = {
+  day: 'numeric',
+  month: 'short',
+  year: '2-digit',
+};
+const formatInput = computed(() => {
+  const locale = props.locale;
+  const one = (date: Date) => date.toLocaleDateString(locale, INPUT_DATE_FORMAT);
+  return (value: Date | Date[]) => (Array.isArray(value) ? value.map(one).join(' – ') : one(value));
+});
 
 const emit = defineEmits<{
   (e: 'change', value: Date | Date[] | null): void;
@@ -55,7 +69,7 @@ const onChange = (value: Date | Date[] | null) => {
       auto-apply
       dark
       teleport
-      format="dd MMM yy"
+      :format="formatInput"
       @update:model-value="onChange"
     />
   </div>

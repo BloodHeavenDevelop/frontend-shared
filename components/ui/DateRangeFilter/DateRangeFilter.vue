@@ -110,6 +110,11 @@ const clear = () => {
   emitRange(null);
 };
 
+// Dates are written through Intl in the given locale (`13 сент. 26 г.`); a date-fns
+// pattern such as `dd MMM yy` would name months in English whatever `locale` says.
+const DAY_FORMAT: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: '2-digit' };
+const formatDay = (d: Date) => d.toLocaleDateString(props.locale, DAY_FORMAT);
+
 const formatLabel = (value: DateTuple): string => {
   if (!value) return '';
   const [from, to] = value;
@@ -117,10 +122,15 @@ const formatLabel = (value: DateTuple): string => {
     from.getFullYear() === to.getFullYear() &&
     from.getMonth() === to.getMonth() &&
     from.getDate() === to.getDate();
-  const fmt = (d: Date) =>
-    d.toLocaleDateString(props.locale, { day: 'numeric', month: 'short', year: '2-digit' });
-  return sameDay ? fmt(from) : `${fmt(from)} – ${fmt(to)}`;
+  return sameDay ? formatDay(from) : `${formatDay(from)} – ${formatDay(to)}`;
 };
+
+// Re-created when the locale changes, so the picker re-renders its own text too.
+const formatInput = computed(() => {
+  const locale = props.locale;
+  const one = (d: Date) => d.toLocaleDateString(locale, DAY_FORMAT);
+  return (value: Date | Date[]) => (Array.isArray(value) ? value.map(one).join(' – ') : one(value));
+});
 
 const buttonLabel = computed(() => formatLabel(internal.value) || props.placeholder);
 const hasValue = computed(() => internal.value !== null);
@@ -137,7 +147,7 @@ const hasValue = computed(() => internal.value !== null);
     auto-apply
     dark
     teleport
-    format="dd MMM yy"
+    :format="formatInput"
     :multi-calendars="{ solo: true }"
     @update:model-value="onChange"
   >
