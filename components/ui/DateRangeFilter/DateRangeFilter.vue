@@ -7,12 +7,26 @@ import { computed, ref, watch } from 'vue';
 
 import type { DateRangeFilterValue } from '../DateRangeFilter/types';
 
+type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
 interface Props {
   placeholder?: string;
+  /**
+   * First day of the calendar week, `Date#getDay` style (Sunday = 0). Pass the
+   * account preference (`useUserPreferencesStore().weekStart`).
+   */
+  weekStart?: Weekday;
+  /**
+   * BCP 47 locale for month/weekday names and the trigger label
+   * (`useUserPreferencesStore().locale`).
+   */
+  locale?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   placeholder: 'Date range',
+  weekStart: 1,
+  locale: 'en-US',
 });
 
 const modelValue = defineModel<DateRangeFilterValue>({
@@ -104,7 +118,7 @@ const formatLabel = (value: DateTuple): string => {
     from.getMonth() === to.getMonth() &&
     from.getDate() === to.getDate();
   const fmt = (d: Date) =>
-    d.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: '2-digit' });
+    d.toLocaleDateString(props.locale, { day: 'numeric', month: 'short', year: '2-digit' });
   return sameDay ? fmt(from) : `${fmt(from)} – ${fmt(to)}`;
 };
 
@@ -118,6 +132,8 @@ const hasValue = computed(() => internal.value !== null);
     range
     :enable-time-picker="false"
     :clearable="false"
+    :week-start="weekStart"
+    :locale="locale"
     auto-apply
     dark
     teleport

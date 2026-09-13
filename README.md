@@ -35,6 +35,13 @@ SearchInput  SegmentedControl  Table  TableActions  TableInput  Toast  ToastsCon
 
 Auto-import preserves the familiar names: `components/ui/Button/Button.vue` → `<UiButton>`.
 
+`DatePicker` and `DateRangeFilter` take optional `weekStart` (`0`–`6`, Sunday = 0; default
+Monday) and `locale` (BCP 47; default `en-US`) props. Timezone and locale are account
+preferences owned by auth-gateway, so the layer does not read them itself — pass the
+consuming app's `useUserPreferencesStore().weekStart` / `.locale`, and the calendar opens
+on the user's first day of the week with month and weekday names (and the range
+trigger's label) in their locale.
+
 `composables/` — cross-app composables whose only dependency is a backend contract
 shared by the whole platform (not the design system, but equally duplicated
 otherwise). They are auto-imported in every consumer just like the components.

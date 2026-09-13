@@ -3,11 +3,20 @@ import '@vuepic/vue-datepicker/dist/main.css';
 
 import VueDatePicker from '@vuepic/vue-datepicker';
 
+type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
 interface Props {
   inTable?: boolean;
   isRange?: boolean;
   isClearable?: boolean;
   placeholder?: string;
+  /**
+   * First day of the calendar week, `Date#getDay` style (Sunday = 0). Pass the
+   * account preference (`useUserPreferencesStore().weekStart`).
+   */
+  weekStart?: Weekday;
+  /** BCP 47 locale for month and weekday names (`useUserPreferencesStore().locale`). */
+  locale?: string;
 }
 
 withDefaults(defineProps<Props>(), {
@@ -15,6 +24,8 @@ withDefaults(defineProps<Props>(), {
   isRange: false,
   isClearable: true,
   placeholder: 'Select date',
+  weekStart: 1,
+  locale: 'en-US',
 });
 
 const model = defineModel<Date | Date[] | null>({ default: null });
@@ -39,6 +50,8 @@ const onChange = (value: Date | Date[] | null) => {
       :enable-time-picker="false"
       :clearable="isClearable"
       :placeholder="placeholder"
+      :week-start="weekStart"
+      :locale="locale"
       auto-apply
       dark
       teleport
