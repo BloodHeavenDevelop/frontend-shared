@@ -1029,12 +1029,54 @@ input.hm-input:not(.hm-controls-search),
   cursor: not-allowed;
 }
 
+/* Tone modifiers — only for a bare `.hm-check__input` in a table's selection column,
+   where a checked box takes the row's status colour so a multi-select over mixed rows
+   still reads the status at a glance. Never on a form checkbox: there the tick is
+   always the accent (or the caution variant below). */
+.hm-check__input--ok:checked {
+  background: rgba(16, 185, 129, 0.1); /* --hm-ok @ 10% */
+  border-color: var(--hm-ok);
+}
+.hm-check__input--ok:checked::after {
+  border-color: var(--hm-ok);
+}
+.hm-check__input--error:checked {
+  background: rgba(239, 68, 68, 0.1); /* --hm-error @ 10% */
+  border-color: var(--hm-error);
+}
+.hm-check__input--error:checked::after {
+  border-color: var(--hm-error);
+}
+.hm-check__input--warning:checked {
+  background: rgba(245, 158, 11, 0.1); /* --hm-warning @ 10% */
+  border-color: var(--hm-warning);
+}
+.hm-check__input--warning:checked::after {
+  border-color: var(--hm-warning);
+}
+.hm-check__input--muted:checked {
+  background: rgba(139, 148, 158, 0.1); /* --hm-muted @ 10% */
+  border-color: var(--hm-muted);
+}
+.hm-check__input--muted:checked::after {
+  border-color: var(--hm-muted);
+}
+
 .hm-check__label {
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.5px;
   color: var(--hm-text);
+}
+
+.hm-check:has(.hm-check__input:disabled) {
+  cursor: not-allowed;
+}
+
+.hm-check:has(.hm-check__input:disabled) .hm-check__label,
+.hm-check:has(.hm-check__input:disabled) .hm-check__hint {
+  opacity: 0.5;
 }
 
 .hm-check__hint {
@@ -1093,6 +1135,70 @@ input.hm-input:not(.hm-controls-search),
 
 .hm-toggle--active .hm-toggle__thumb {
   transform: translateX(18px);
+}
+
+/* The toggle is a labelled row: label on the left, switch on the right, the whole row
+   clickable (§ 13.2). The real control is a visually hidden checkbox with
+   `role="switch"`, so the label, keyboard and screen reader all work without JS; the
+   `.hm-toggle` span is only the visual. */
+.hm-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  cursor: pointer;
+}
+
+.hm-toggle-row__text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.hm-toggle-row__label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--hm-text);
+}
+
+.hm-toggle-row__hint {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--hm-muted);
+}
+
+.hm-toggle-row .hm-toggle {
+  flex-shrink: 0;
+}
+
+.hm-toggle__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.hm-toggle__input:focus-visible + .hm-toggle {
+  box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.3); /* --hm-accent @ 30% */
+}
+
+.hm-toggle-row:has(.hm-toggle__input:disabled) {
+  cursor: not-allowed;
+}
+
+.hm-toggle-row:has(.hm-toggle__input:disabled) .hm-toggle,
+.hm-toggle-row:has(.hm-toggle__input:disabled) .hm-toggle-row__text {
+  opacity: 0.5;
 }
 
 /* === Pagination === */
@@ -1531,6 +1637,13 @@ select:-webkit-autofill:focus {
 
   .hm-form-label {
     font-size: 12px;
+  }
+
+  /* § M13 — the 14px box and the 40 × 22 switch keep their visuals; the labelled row
+     is the target and lands on the touch floor. */
+  .hm-check,
+  .hm-toggle-row {
+    min-height: var(--hm-touch-min);
   }
 
   /* § M8.1 — stat cards become a horizontally scrolling strip. The negative margin

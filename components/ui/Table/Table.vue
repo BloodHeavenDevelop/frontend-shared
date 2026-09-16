@@ -535,6 +535,7 @@ const refreshTableData = () => {
                         >
                           <input
                             type="checkbox"
+                            class="hm-check__input"
                             :checked="!isHidden(col.key as string)"
                             :disabled="!isColumnToggleable(col)"
                             @change="
@@ -952,10 +953,8 @@ const refreshTableData = () => {
   color: var(--hm-muted);
 }
 
-.hm-column-menu__label input[type='checkbox'] {
-  accent-color: var(--hm-accent);
-  width: 14px;
-  height: 14px;
+.hm-column-menu__label .hm-check__input {
+  flex-shrink: 0;
 }
 
 .hm-th-label {

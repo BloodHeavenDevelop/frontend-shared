@@ -105,9 +105,12 @@ export default defineAppConfig({
       },
     },
 
+    // No application renders a `<UCheckbox>` any more (`<UiCheckbox>` is the one
+    // form checkbox, DESIGN_MANIFEST.md § 13.6); this keeps a stray one on the
+    // `.hm-check` geometry — 14px box, 3px radius — instead of the library's 20px.
     checkbox: {
       slots: {
-        base: 'size-5 cursor-pointer rounded-sm ring ring-inset ring-hm-border',
+        base: 'size-3.5 cursor-pointer rounded-[3px] ring ring-inset ring-hm-border',
         label: 'cursor-pointer text-hm-text',
         description: 'text-hm-muted',
       },

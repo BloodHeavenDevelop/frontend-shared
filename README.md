@@ -27,11 +27,19 @@ cyrillic, Syne latin).
 `components/ui/` — universal design-system primitives (used across all frontends):
 
 ```
-AppIcon  AppLoadingIndicator  Badge  Banner  Button  ButtonBack  CircularLoader
+AppIcon  AppLoadingIndicator  Badge  Banner  Button  ButtonBack  Checkbox  CircularLoader
 DatePicker  DateRangeFilter  EnvBulkInput  Form  FormInput  FormSelect  FormTextarea
 HmSelect  IconButton  Input  MobileNav  Modal  NavDropdown  PopupBox  PopupContainer
-SearchInput  SegmentedControl  Table  TableActions  TableInput  Toast  ToastsContainer
+SearchInput  SegmentedControl  Table  TableActions  TableInput  Toast  ToastsContainer  Toggle
 ```
+
+`Checkbox` (`<UiCheckbox>`, manifest § 13.6) is the form checkbox — `label`, optional
+`hint`, `variant="warning"` for flags that put an entity into a holding state — and
+`Toggle` (`<UiToggle>`, § 13.1–13.2) the settings switch that applies immediately. Both
+are `v-model` booleans over the `.hm-check*` / `.hm-toggle*` classes in `hm-base.css`;
+a bare `<input type="checkbox" class="hm-check__input">` is reserved for a table's
+selection column, where the row already is the label. Nothing else on the platform
+renders a checkbox: no native `<input type="checkbox">` in a form, no `<UCheckbox>`.
 
 Auto-import preserves the familiar names: `components/ui/Button/Button.vue` → `<UiButton>`.
 
