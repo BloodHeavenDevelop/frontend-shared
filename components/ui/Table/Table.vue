@@ -1042,53 +1042,7 @@ const refreshTableData = () => {
   display: none;
 }
 
-.hm-mcard {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  /* Inside the container's --hm-surface, so the card recesses to --hm-bg (§ 8.5). */
-  background: var(--hm-bg);
-  border: 1px solid var(--hm-border);
-  border-radius: 8px;
-  padding: 12px 14px;
-  min-height: 56px;
-  text-decoration: none;
-  color: var(--hm-text);
-}
-
-.hm-mcard__title {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--hm-text);
-  overflow-wrap: anywhere;
-}
-
-.hm-mcard__field {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.hm-mcard__label {
-  flex: 0 0 auto;
-  font-family: 'Syne', sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--hm-muted);
-}
-
-.hm-mcard__value {
-  min-width: 0;
-  text-align: right;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 12px;
-  color: var(--hm-text);
-  overflow-wrap: anywhere;
-}
+/* .hm-mcard* live in hm-base.css: the same card serves a plain .hm-table. */
 
 .hm-msort {
   display: flex;

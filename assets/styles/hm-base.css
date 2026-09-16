@@ -682,6 +682,57 @@ body {
   border-left: 3px solid #ef4444;
 }
 
+/* === Row card (mobility § M8.2) ===
+   The phone replacement for a table row. `<UiTable>` renders one per row below 768px;
+   a simple `.hm-table` (§ 9.8) renders the same cards from its own cells. It sits inside
+   the table container, so it steps down to --hm-bg (§ 8.5). */
+.hm-mcard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--hm-bg);
+  border: 1px solid var(--hm-border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  min-height: 56px;
+  text-decoration: none;
+  color: var(--hm-text);
+}
+
+.hm-mcard__title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--hm-text);
+  overflow-wrap: anywhere;
+}
+
+.hm-mcard__field {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hm-mcard__label {
+  flex: 0 0 auto;
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--hm-muted);
+}
+
+.hm-mcard__value {
+  min-width: 0;
+  text-align: right;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--hm-text);
+  overflow-wrap: anywhere;
+}
+
 /* === Status Badges === */
 .hm-badge {
   display: inline-block;
@@ -1223,6 +1274,18 @@ input.hm-input:not(.hm-controls-search),
 .hm-pagination-btn:disabled {
   opacity: 0.3;
   cursor: not-allowed;
+}
+
+/* === Page Title (manifest § 3.2 / § 18.3) ===
+   The one <h1> at the top of the canvas. Colour is inherited on purpose: a page that
+   colours its title by state (a health verdict) keeps a Tailwind text-* utility working. */
+.hm-page-title {
+  margin: 0;
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  line-height: 1.2;
 }
 
 /* === Section Title with divider line === */
