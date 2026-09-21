@@ -52,3 +52,9 @@ Tailwind Variants (`slots`/`variants`), и мержатся поверх биб�
   ISO 8601 `YYYY-MM-DD HH:MM:SS` (напр. `2026-06-15 14:30:05`). Сырой UTC в UI не
   показываем. Таймзона и локаль — настройки аккаунта в auth-gateway, слой их сам не
   читает: компоненты с календарём принимают `weekStart` / `locale` пропсами от приложения.
+
+## Git Worktrees — FORBIDDEN
+
+- **Never use git worktrees.** Do not run `git worktree add` / `list` / `remove` / `prune`, do not create or work inside a separate worktree directory, and never suggest a worktree as a way to isolate work.
+- Do not use any tool or agent "worktree" isolation mode (e.g. the `EnterWorktree` / `ExitWorktree` tools, or `isolation: "worktree"` when spawning an agent).
+- Work directly in the existing repository clone. If another branch is needed, verify the tree is clean and switch in place with `git switch`.
