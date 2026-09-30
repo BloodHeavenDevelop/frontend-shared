@@ -40,8 +40,11 @@ const INPUT_DATE_FORMAT: Intl.DateTimeFormatOptions = {
 };
 const formatInput = computed(() => {
   const locale = props.locale;
-  const one = (date: Date) => date.toLocaleDateString(locale, INPUT_DATE_FORMAT);
-  return (value: Date | Date[]) => (Array.isArray(value) ? value.map(one).join(' – ') : one(value));
+  // The widget re-runs the formatter whenever it changes (a live locale switch),
+  // including on an empty picker, so a missing date renders as nothing.
+  const one = (date: Date | null) => (date ? date.toLocaleDateString(locale, INPUT_DATE_FORMAT) : '');
+  return (value: Date | Date[] | null) =>
+    Array.isArray(value) ? value.filter(Boolean).map(one).join(' – ') : one(value);
 });
 
 const emit = defineEmits<{

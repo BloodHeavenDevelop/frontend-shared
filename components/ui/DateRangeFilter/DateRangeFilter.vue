@@ -128,8 +128,10 @@ const formatLabel = (value: DateTuple): string => {
 // Re-created when the locale changes, so the picker re-renders its own text too.
 const formatInput = computed(() => {
   const locale = props.locale;
-  const one = (d: Date) => d.toLocaleDateString(locale, DAY_FORMAT);
-  return (value: Date | Date[]) => (Array.isArray(value) ? value.map(one).join(' – ') : one(value));
+  // Also re-run on an empty picker, so a missing date renders as nothing.
+  const one = (d: Date | null) => (d ? d.toLocaleDateString(locale, DAY_FORMAT) : '');
+  return (value: Date | Date[] | null) =>
+    Array.isArray(value) ? value.filter(Boolean).map(one).join(' – ') : one(value);
 });
 
 const buttonLabel = computed(() => formatLabel(internal.value) || props.placeholder);
