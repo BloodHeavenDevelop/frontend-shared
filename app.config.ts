@@ -17,14 +17,21 @@
 
 /** The shared control skin: hm surface, 1px hm border, accent on hover and focus. */
 const HM_CONTROL =
-  'text-hm-text bg-hm-bg ring ring-inset ring-hm-border hover:ring-hm-accent focus:ring-hm-accent focus-visible:ring-hm-accent disabled:ring-hm-border';
+  'rounded-lg text-hm-text bg-hm-bg ring ring-inset ring-hm-border hover:ring-hm-accent focus:ring-hm-accent focus-visible:ring-hm-accent disabled:ring-hm-border';
 
-/** Padding per control size. `2xs` is the toolbar/filter height the manifest pins. */
-const CONTROL_SIZES = {
-  '2xs': { base: 'px-2 py-[11px] text-xs' },
-  xs: { base: 'px-2.5 py-[11px] text-xs' },
-  sm: { base: 'p-3.5 text-sm' },
-};
+/** `.hm-input` geometry: 14/8 px padding plus the 1 px ring, 12 px type — 16 px on a
+ *  phone, below which iOS zooms the page on focus (mobility § M3). */
+const HM_FIELD = 'px-3.5 py-[9px] text-xs max-md:text-base';
+
+/** Manifest § 10.6: there is one form control height and every size preset lands on
+ *  it — a size is never a way to get a taller field. The floor is the
+ *  `--hm-control-height` token, so the touch height below 768 px follows by itself. */
+const CONTROL_SIZE = { base: `${HM_FIELD} min-h-(--hm-control-height)` };
+const CONTROL_SIZES = { '2xs': CONTROL_SIZE, xs: CONTROL_SIZE, sm: CONTROL_SIZE };
+
+/** A textarea keeps the field's type and padding; its height is its own (§ 10.5). */
+const TEXTAREA_SIZE = { base: HM_FIELD };
+const TEXTAREA_SIZES = { '2xs': TEXTAREA_SIZE, xs: TEXTAREA_SIZE, sm: TEXTAREA_SIZE };
 
 export default defineAppConfig({
   ui: {
@@ -59,7 +66,7 @@ export default defineAppConfig({
         base: 'placeholder:text-hm-muted disabled:bg-hm-bg/50 disabled:text-hm-muted',
       },
       variants: {
-        size: CONTROL_SIZES,
+        size: TEXTAREA_SIZES,
         variant: {
           hm: HM_CONTROL,
           table: `${HM_CONTROL} text-sm`,

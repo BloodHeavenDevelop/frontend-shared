@@ -38,7 +38,7 @@ const emit = defineEmits<{
 // than merged, so there was no way to reach the trigger from here. Nuxt UI 4 merges
 // slot classes, which is exactly what this needs.
 const mergedUi = computed(() =>
-  props.filter ? { base: 'h-[30px] min-h-0 py-0 leading-none' } : undefined,
+  props.filter ? { base: 'h-[30px] max-md:h-(--hm-control-height) min-h-0 py-0 leading-none' } : undefined,
 );
 
 const localValue = computed({

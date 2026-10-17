@@ -865,9 +865,10 @@ const refreshTableData = () => {
   position: relative;
 }
 
+/* The header row's icon action has the toolbar icon geometry (§ 9.3): 30 × 30. */
 .hm-column-toggle-btn {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   display: inline-flex;
   align-items: center;
   justify-content: center;

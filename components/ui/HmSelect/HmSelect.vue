@@ -360,12 +360,16 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 8px 12px;
+  /* A pixel-twin of `.hm-input` (DESIGN_MANIFEST § 10.6 / § 10.7.2): the same type,
+     padding, radius and control-height floor as the text field next to it. */
+  min-height: var(--hm-control-height);
+  padding: 8px 14px;
   background: var(--hm-bg);
   border: 1px solid var(--hm-border);
-  border-radius: 6px;
+  border-radius: 8px;
   color: var(--hm-text);
-  font-size: 13px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
   cursor: pointer;
   transition: border-color 0.15s;
   text-align: left;
@@ -528,5 +532,21 @@ onBeforeUnmount(() => {
   text-align: center;
   font-size: 12px;
   color: var(--hm-muted);
+}
+
+/* Mobility § M3 / § M11 — the trigger follows `.hm-input` and the toolbar search:
+   16px type (iOS zooms below it) and the touch control height, filter included. */
+@media (max-width: 768px) {
+  .hm-select-trigger {
+    padding: 12px 14px;
+    font-size: 16px;
+    line-height: 22px;
+  }
+
+  .hm-select-trigger--filter {
+    height: var(--hm-control-height);
+    min-height: var(--hm-control-height);
+    padding: 0 14px;
+  }
 }
 </style>

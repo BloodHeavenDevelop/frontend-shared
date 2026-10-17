@@ -819,9 +819,16 @@ body {
 
 /* One form control height: a single-line input and the select next to it line up.
    Toolbar controls keep their own 30px height (§ 11) and are excluded. */
-input.hm-input:not(.hm-controls-search),
+input.hm-input:not(.hm-controls-search):not(.hm-input--toolbar),
 .hm-select {
   min-height: var(--hm-control-height);
+}
+
+/* A field that sits in a toolbar row beside buttons (an editor's name bar, a page's
+   context picker) takes the toolbar height (§ 11), so the row is one line of 30px. */
+.hm-input--toolbar {
+  height: 30px;
+  padding: 0 14px;
 }
 
 .hm-input:focus {
@@ -1691,11 +1698,18 @@ select:-webkit-autofill:focus {
   .hm-textarea,
   .hm-select {
     font-size: 16px;
+    /* 12 + 22 + 12 + the 1px border lands exactly on the 48px control height; the
+       inherited 1.5 line height would make every bare field 2px taller than it. */
+    line-height: 22px;
     padding: 12px 14px;
   }
 
   .hm-select {
     padding-right: 36px;
+  }
+
+  .hm-input--toolbar {
+    height: var(--hm-control-height);
   }
 
   .hm-form-label {

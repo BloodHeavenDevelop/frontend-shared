@@ -80,13 +80,15 @@ const onSelect = (value: T, disabled?: boolean) => {
   white-space: nowrap;
 }
 
+/* Heights are the outer box (DESIGN_MANIFEST § 13.5): md = 30px, the toolbar row,
+   sm = 26px — each item is that minus the 2px padding and the 1px frame. */
 .hm-segmented--md .hm-segmented__item {
-  height: 26px;
+  height: 24px;
   padding: 0 12px;
 }
 
 .hm-segmented--sm .hm-segmented__item {
-  height: 22px;
+  height: 20px;
   padding: 0 10px;
   font-size: 10px;
 }
