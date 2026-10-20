@@ -58,6 +58,19 @@ consuming app's `useUserPreferencesStore().weekStart` / `.locale`, and the calen
 on the user's first day of the week with month and weekday names (and the range
 trigger's label) in their locale.
 
+`DateRangeFilter` also takes `timeZone` (IANA, `useUserPreferencesStore().timezone`): a
+picked day runs from its first to its last instant **in that zone**, the presets ("Today",
+"Last 7 days") are counted there, and the model is that pair of UTC instants — the
+browser's zone is used only when the prop is unset. Its preset names come from
+`presetLabels` (`{ today, yesterday, last7Days, last30Days, thisMonth, thisYear }`,
+English by default). `DatePicker` is a form field at the control height; `toolbar` makes
+it the 30 px toolbar control.
+
+`Table` renders "Reset filters" after the `controls-left` filters while
+`hasActiveFilters` is true (the page decides what counts, search included) and emits
+`reset-filters`; `resetFiltersLabel` carries the app's translation. A reset keeps the
+rows-per-page choice — it is the visitor's, not a filter.
+
 `composables/` — cross-app composables whose only dependency is a backend contract
 shared by the whole platform (not the design system, but equally duplicated
 otherwise). They are auto-imported in every consumer just like the components.

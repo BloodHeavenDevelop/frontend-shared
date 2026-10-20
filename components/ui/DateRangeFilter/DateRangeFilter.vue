@@ -2,10 +2,18 @@
 import '@vuepic/vue-datepicker/dist/main.css';
 
 import VueDatePicker from '@vuepic/vue-datepicker';
-import { endOfDay, endOfMonth, startOfDay, startOfMonth, startOfYear, subDays } from 'date-fns';
 import { computed, ref, watch } from 'vue';
 
-import type { DateRangeFilterValue } from '../DateRangeFilter/types';
+import type { DateRangePresetKey, DateRangeFilterValue } from '../DateRangeFilter/types';
+import {
+  addWallDays,
+  endOfZonedDay,
+  fromLocalCalendarDate,
+  startOfZonedDay,
+  toLocalCalendarDate,
+  type WallDate,
+  wallDateOf,
+} from '../DateRangeFilter/zoned-days';
 
 type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -21,19 +29,33 @@ interface Props {
    * (`useUserPreferencesStore().locale`).
    */
   locale?: string;
+  /**
+   * IANA zone whose calendar days the range covers (`useUserPreferencesStore().timezone`).
+   * A picked day runs from its first to its last instant in that zone, and the presets
+   * ("Today", "Last 7 days") are counted there. Unset: the browser's zone.
+   */
+  timeZone?: string;
+  /** Preset names from the app's i18n; English by default. */
+  presetLabels?: Partial<Record<DateRangePresetKey, string>>;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   placeholder: 'Date range',
   weekStart: 1,
   locale: 'en-US',
+  timeZone: undefined,
+  presetLabels: () => ({}),
 });
 
 const modelValue = defineModel<DateRangeFilterValue>({
   default: () => ({ from: '', to: '' }),
 });
 
+// The model is a pair of UTC instants: the first instant of the first day and the last
+// instant of the last day, both counted in `timeZone`. The picker's calendar works on
+// browser-local dates, so `internal` holds the local dates that *show* those days.
 type DateTuple = [Date, Date] | null;
+type DayRange = [WallDate, WallDate];
 
 const internal = ref<DateTuple>(null);
 
@@ -42,72 +64,90 @@ const toTuple = (value: DateRangeFilterValue): DateTuple => {
   const from = new Date(value.from);
   const to = new Date(value.to);
   if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime())) return null;
-  return [from, to];
+  return [
+    toLocalCalendarDate(wallDateOf(from, props.timeZone)),
+    toLocalCalendarDate(wallDateOf(to, props.timeZone)),
+  ];
 };
 
 watch(
-  modelValue,
-  (val) => {
-    internal.value = toTuple(val);
+  [modelValue, () => props.timeZone],
+  () => {
+    internal.value = toTuple(modelValue.value);
   },
   { immediate: true },
 );
 
-const emitRange = (range: DateTuple) => {
-  if (!range) {
+const emitDays = (days: DayRange | null) => {
+  if (!days) {
     modelValue.value = { from: '', to: '' };
     return;
   }
-  const [from, to] = range;
-  modelValue.value = { from: from.toISOString(), to: to.toISOString() };
+  const [first, last] = days;
+  modelValue.value = {
+    from: startOfZonedDay(first, props.timeZone).toISOString(),
+    to: endOfZonedDay(last, props.timeZone).toISOString(),
+  };
 };
 
 const onChange = (value: Date | Date[] | null) => {
   if (Array.isArray(value) && value.length === 2 && value[0] && value[1]) {
-    emitRange([value[0], value[1]]);
+    emitDays([fromLocalCalendarDate(value[0]), fromLocalCalendarDate(value[1])]);
   } else if (value === null) {
-    emitRange(null);
+    emitDays(null);
   }
 };
 
-const presets = [
-  {
-    label: 'Today',
-    range: (): [Date, Date] => [startOfDay(new Date()), endOfDay(new Date())],
-  },
-  {
-    label: 'Yesterday',
-    range: (): [Date, Date] => {
-      const d = subDays(new Date(), 1);
-      return [startOfDay(d), endOfDay(d)];
-    },
-  },
-  {
-    label: 'Last 7 days',
-    range: (): [Date, Date] => [startOfDay(subDays(new Date(), 6)), endOfDay(new Date())],
-  },
-  {
-    label: 'Last 30 days',
-    range: (): [Date, Date] => [startOfDay(subDays(new Date(), 29)), endOfDay(new Date())],
-  },
-  {
-    label: 'This month',
-    range: (): [Date, Date] => [startOfMonth(new Date()), endOfMonth(new Date())],
-  },
-  {
-    label: 'This year',
-    range: (): [Date, Date] => [startOfYear(new Date()), endOfDay(new Date())],
-  },
-];
+const PRESET_LABELS: Record<DateRangePresetKey, string> = {
+  today: 'Today',
+  yesterday: 'Yesterday',
+  last7Days: 'Last 7 days',
+  last30Days: 'Last 30 days',
+  thisMonth: 'This month',
+  thisYear: 'This year',
+};
 
-const applyPreset = (range: [Date, Date]) => {
-  internal.value = range;
-  emitRange(range);
+const today = () => wallDateOf(new Date(), props.timeZone);
+const LAST_7_OFFSET = -6;
+const LAST_30_OFFSET = -29;
+const FIRST_DAY = 1;
+
+const PRESET_RANGES: Record<DateRangePresetKey, () => DayRange> = {
+  today: () => [today(), today()],
+  yesterday: () => [addWallDays(today(), -1), addWallDays(today(), -1)],
+  last7Days: () => [addWallDays(today(), LAST_7_OFFSET), today()],
+  last30Days: () => [addWallDays(today(), LAST_30_OFFSET), today()],
+  thisMonth: () => {
+    const now = today();
+    // Day 0 of the next month is the last day of this one.
+    const lastDay = new Date(Date.UTC(now.year, now.month + 1, 0)).getUTCDate();
+    return [
+      { ...now, day: FIRST_DAY },
+      { ...now, day: lastDay },
+    ];
+  },
+  thisYear: () => {
+    const now = today();
+    return [{ year: now.year, month: 0, day: FIRST_DAY }, now];
+  },
+};
+
+const presets = computed(() =>
+  (Object.keys(PRESET_LABELS) as DateRangePresetKey[]).map((key) => ({
+    key,
+    label: props.presetLabels[key] ?? PRESET_LABELS[key],
+    range: PRESET_RANGES[key],
+  })),
+);
+
+const applyPreset = (days: DayRange) => {
+  internal.value = [toLocalCalendarDate(days[0]), toLocalCalendarDate(days[1])];
+  emitDays(days);
 };
 
 const clear = () => {
   internal.value = null;
-  emitRange(null);
+  emitDays(null);
 };
 
 // Dates are written through Intl in the given locale (`13 сент. 26 г.`); a date-fns
@@ -181,7 +221,7 @@ const hasValue = computed(() => internal.value !== null);
       <div class="hm-date-range-presets">
         <button
           v-for="preset in presets"
-          :key="preset.label"
+          :key="preset.key"
           type="button"
           class="hm-date-range-presets__item"
           @click="applyPreset(preset.range())"
@@ -263,6 +303,19 @@ const hasValue = computed(() => internal.value !== null);
 .hm-date-range-presets__item:hover {
   background: rgba(0, 212, 255, 0.08);
   color: var(--hm-accent);
+}
+
+/* Mobility § M11 — a toolbar control rejoins the touch height and 16px type. */
+@media (max-width: 768px) {
+  .hm-date-range-trigger {
+    height: var(--hm-control-height);
+    padding: 0 14px;
+  }
+
+  .hm-date-range-trigger,
+  .hm-date-range-trigger__label {
+    font-size: 16px;
+  }
 }
 </style>
 

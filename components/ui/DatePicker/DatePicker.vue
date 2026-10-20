@@ -8,6 +8,8 @@ type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 interface Props {
   inTable?: boolean;
+  /** A toolbar control (§ 11): 30 px like the search and filters beside it. */
+  toolbar?: boolean;
   isRange?: boolean;
   isClearable?: boolean;
   placeholder?: string;
@@ -22,6 +24,7 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   inTable: false,
+  toolbar: false,
   isRange: false,
   isClearable: true,
   placeholder: 'Select date',
@@ -42,7 +45,8 @@ const formatInput = computed(() => {
   const locale = props.locale;
   // The widget re-runs the formatter whenever it changes (a live locale switch),
   // including on an empty picker, so a missing date renders as nothing.
-  const one = (date: Date | null) => (date ? date.toLocaleDateString(locale, INPUT_DATE_FORMAT) : '');
+  const one = (date: Date | null) =>
+    date ? date.toLocaleDateString(locale, INPUT_DATE_FORMAT) : '';
   return (value: Date | Date[] | null) =>
     Array.isArray(value) ? value.filter(Boolean).map(one).join(' – ') : one(value);
 });
@@ -59,7 +63,10 @@ const onChange = (value: Date | Date[] | null) => {
 <template>
   <div
     class="hm-date-picker"
-    :class="{ 'hm-date-picker--in-table': inTable }"
+    :class="{
+      'hm-date-picker--in-table': inTable,
+      'hm-date-picker--toolbar': toolbar,
+    }"
   >
     <VueDatePicker
       v-model="model"
@@ -84,10 +91,49 @@ const onChange = (value: Date | Date[] | null) => {
   width: 100%;
 }
 
+/* The input is a twin of `.hm-input` (§ 10.7.1 / § 10.7.4): 12px mono, 8px radius,
+   recessed `--hm-bg`, and the one form control height — the library's own input is a
+   16px/38px box with a 4px radius that stood out next to every other field. */
+.hm-date-picker :deep(.dp__input) {
+  box-sizing: border-box;
+  height: var(--hm-control-height);
+  border-radius: 8px;
+  background: var(--hm-bg);
+  border-color: var(--hm-border);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.hm-date-picker :deep(.dp__input:hover) {
+  border-color: rgba(0, 212, 255, 0.3); /* --hm-accent @ 30% */
+}
+
+.hm-date-picker :deep(.dp__input_focus) {
+  border-color: var(--hm-accent);
+}
+
+.hm-date-picker :deep(.dp__input::placeholder) {
+  color: var(--hm-muted);
+  opacity: 1;
+}
+
+.hm-date-picker--toolbar :deep(.dp__input) {
+  height: 30px;
+}
+
 .hm-date-picker--in-table :deep(.dp__input) {
   height: 32px;
-  font-size: 12px;
-  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Mobility § M3 / § M11 — 16px type (iOS zooms below it) and the touch height,
+   in a form and in a toolbar alike. */
+@media (max-width: 768px) {
+  .hm-date-picker :deep(.dp__input),
+  .hm-date-picker--toolbar :deep(.dp__input) {
+    height: var(--hm-control-height);
+    font-size: 16px;
+  }
 }
 </style>
 

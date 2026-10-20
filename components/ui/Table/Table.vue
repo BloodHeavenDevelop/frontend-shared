@@ -26,6 +26,12 @@ const props = withDefaults(
     tableId?: string;
     isCsvDownload?: boolean;
     tableTitle?: string;
+    /**
+     * § 11.5: while true, the controls bar shows "Reset filters" after the filters,
+     * which emits `reset-filters`. The page decides what counts (search included).
+     */
+    hasActiveFilters?: boolean;
+    resetFiltersLabel?: string;
   }>(),
   {
     rows: () => [],
@@ -39,6 +45,8 @@ const props = withDefaults(
     tableId: '',
     isCsvDownload: false,
     tableTitle: undefined,
+    hasActiveFilters: false,
+    resetFiltersLabel: 'Reset filters',
   },
 );
 
@@ -383,6 +391,13 @@ const refreshTableData = () => {
             @input="emit('update:globalSearch', ($event.target as HTMLInputElement).value)"
           />
           <slot name="controls-left" />
+          <UiButton
+            v-if="hasActiveFilters"
+            variant="neutral"
+            @click="resetAllFilters"
+          >
+            {{ resetFiltersLabel }}
+          </UiButton>
         </div>
 
         <div class="hm-controls-bar__right">
