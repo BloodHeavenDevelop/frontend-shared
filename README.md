@@ -29,7 +29,7 @@ cyrillic, Syne latin).
 ```
 AppIcon  AppLoadingIndicator  Badge  Banner  Button  ButtonBack  Checkbox  CircularLoader
 DatePicker  DateRangeFilter  EnvBulkInput  Form  FormInput  FormSelect  FormTextarea
-HmSelect  IconButton  Input  MobileNav  Modal  NavDropdown  PopupBox  PopupContainer
+HmSelect  IconButton  Input  MobileNav  Modal  MultiSelect  NavDropdown  PopupBox  PopupContainer
 SearchInput  SegmentedControl  Table  TableActions  TableInput  Toast  ToastsContainer  Toggle
 ```
 
@@ -40,6 +40,14 @@ are `v-model` booleans over the `.hm-check*` / `.hm-toggle*` classes in `hm-base
 a bare `<input type="checkbox" class="hm-check__input">` is reserved for a table's
 selection column, where the row already is the label. Nothing else on the platform
 renders a checkbox: no native `<input type="checkbox">` in a form, no `<UCheckbox>`.
+
+`MultiSelect` (`<UiMultiSelect>`, manifest § 11.6) picks several values of one field:
+`v-model` is an array, `options` are `{ label, value, count?, tone?, disabled? }` (types in
+`components/ui/MultiSelect/types.ts`). By default it is a 30 px toolbar filter whose `label`
+names the filter; `size="form"` makes it a field at the control height whose `label` is the
+placeholder. The panel always opens with a focused search field and stays open while values
+are picked. Its UI words default to English — pass `searchPlaceholder`, `emptyLabel`,
+`allLabel`, `clearLabel`, `selectedLabel`, `ofLabel` from the app's i18n.
 
 Auto-import preserves the familiar names: `components/ui/Button/Button.vue` → `<UiButton>`.
 

@@ -1165,6 +1165,315 @@ input.hm-input:not(.hm-controls-search):not(.hm-input--toolbar),
   box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.3); /* --hm-warning @ 30% */
 }
 
+/* === Multi-select filter (manifest § 11.6) ===
+   A toolbar filter that takes several values. The trigger is a 30px pixel-twin of the
+   toolbar search (§ 11.1); the panel is a § 16.1 dropdown with a search field always at
+   the top and § 13.6 checkboxes for options. Picking keeps the panel open. */
+.hm-multiselect {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  min-width: 150px;
+  padding-right: 10px;
+  box-sizing: border-box;
+  background: var(--hm-bg);
+  border: 1px solid var(--hm-border);
+  border-radius: 8px;
+  transition: border-color 0.15s;
+}
+
+.hm-multiselect:hover:not(.hm-multiselect--disabled) {
+  border-color: rgba(0, 212, 255, 0.3); /* --hm-accent @ 30% */
+}
+
+.hm-multiselect--open,
+.hm-multiselect--open:hover,
+.hm-multiselect:focus-within {
+  border-color: var(--hm-accent);
+}
+
+.hm-multiselect--disabled {
+  opacity: 0.5;
+}
+
+/* A form field (§ 10.7.4): full width, the form control height, recessed like `.hm-input`. */
+.hm-multiselect--form {
+  display: flex;
+  width: 100%;
+  height: auto;
+  min-height: var(--hm-control-height);
+}
+
+.hm-multiselect__trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 0 0 14px;
+  border: none;
+  background: none;
+  color: var(--hm-text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+}
+
+.hm-multiselect__trigger:disabled {
+  cursor: not-allowed;
+}
+
+.hm-multiselect__label {
+  flex-shrink: 0;
+  color: var(--hm-muted);
+  white-space: nowrap;
+}
+
+.hm-multiselect__value {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hm-multiselect__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  background: rgba(0, 212, 255, 0.1); /* --hm-accent @ 10% */
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  color: var(--hm-accent);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+.hm-multiselect__clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--hm-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.hm-multiselect__clear:hover,
+.hm-multiselect__clear:focus-visible {
+  color: var(--hm-text);
+  background: rgba(139, 148, 158, 0.15); /* --hm-muted @ 15% */
+  outline: none;
+}
+
+.hm-multiselect__chevron {
+  flex-shrink: 0;
+  color: var(--hm-muted);
+  pointer-events: none;
+  transition: transform 0.15s;
+}
+
+.hm-multiselect--open .hm-multiselect__chevron {
+  transform: rotate(180deg);
+}
+
+/* Body-teleported like `<UiHmSelect>`'s panel, so it layers above modal overlays
+   (§ 2.4 caps z-index at 100). */
+.hm-multiselect__panel {
+  position: fixed;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  box-sizing: border-box;
+  background: var(--hm-surface);
+  border: 1px solid var(--hm-border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.hm-multiselect__search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.hm-multiselect__search svg {
+  position: absolute;
+  left: 10px;
+  color: var(--hm-muted);
+  pointer-events: none;
+}
+
+.hm-multiselect__search-input {
+  width: 100%;
+  height: 30px;
+  box-sizing: border-box;
+  padding: 0 10px 0 30px;
+  background: var(--hm-bg);
+  border: 1px solid var(--hm-border);
+  border-radius: 6px;
+  color: var(--hm-text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.hm-multiselect__search-input:focus {
+  border-color: var(--hm-accent);
+}
+
+.hm-multiselect__search-input::placeholder {
+  color: var(--hm-muted);
+}
+
+.hm-multiselect__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-shrink: 0;
+  padding: 8px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--hm-border);
+  font-family: 'Syne', sans-serif;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--hm-muted);
+}
+
+.hm-multiselect__actions {
+  display: flex;
+  gap: 12px;
+}
+
+.hm-multiselect__action {
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: var(--hm-muted);
+  cursor: pointer;
+  transition: color 0.15s;
+}
+
+.hm-multiselect__action:hover,
+.hm-multiselect__action:focus-visible {
+  color: var(--hm-accent);
+  outline: none;
+}
+
+.hm-multiselect__list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.hm-multiselect__option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--hm-text);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.hm-multiselect__option--highlight {
+  background: rgba(0, 212, 255, 0.08); /* --hm-accent @ 8% */
+}
+
+.hm-multiselect__option--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.hm-multiselect__option .hm-check__input {
+  flex-shrink: 0;
+}
+
+.hm-multiselect__option-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hm-multiselect__hit {
+  color: var(--hm-accent);
+  font-weight: 700;
+}
+
+.hm-multiselect__option-count {
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--hm-muted);
+}
+
+/* A status in the list is a still dot (§ 12.2) — the pulse belongs to live status. */
+.hm-multiselect__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.hm-multiselect__dot--ok {
+  background: var(--hm-ok);
+  box-shadow: 0 0 8px var(--hm-ok);
+}
+
+.hm-multiselect__dot--error {
+  background: var(--hm-error);
+  box-shadow: 0 0 8px var(--hm-error);
+}
+
+.hm-multiselect__dot--warning {
+  background: var(--hm-warning);
+}
+
+.hm-multiselect__dot--active {
+  background: var(--hm-active);
+}
+
+.hm-multiselect__dot--paused {
+  background: var(--hm-paused);
+}
+
+.hm-multiselect__empty {
+  padding: 22px 8px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--hm-muted);
+}
+
 /* === Toggle Switch === */
 .hm-toggle {
   position: relative;
@@ -1797,6 +2106,29 @@ select:-webkit-autofill:focus {
 
   .hm-monitor-badge {
     min-height: 44px;
+  }
+
+  /* § M11 / M13 / M16 — the multi-select follows the toolbar search: touch height and
+     16px type; every option row is a 48px target; the panel stays inside the gutter. */
+  .hm-multiselect:not(.hm-multiselect--form) {
+    height: var(--hm-control-height);
+  }
+
+  .hm-multiselect__trigger,
+  .hm-multiselect__search-input {
+    font-size: 16px;
+  }
+
+  .hm-multiselect__search-input {
+    height: var(--hm-control-height);
+  }
+
+  .hm-multiselect__option {
+    min-height: var(--hm-touch-min);
+  }
+
+  .hm-multiselect__panel {
+    max-width: calc(100vw - 32px);
   }
 }
 
