@@ -6,6 +6,10 @@ import { computed } from 'vue';
 
 type Weekday = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
+/** A calendar date as `YYYY-MM-DD` — a day, not an instant. */
+type CalendarDate = string;
+type PickerValue = Date | Date[] | CalendarDate | CalendarDate[] | null;
+
 interface Props {
   inTable?: boolean;
   /** A toolbar control (§ 11): 30 px like the search and filters beside it. */
@@ -20,6 +24,17 @@ interface Props {
   weekStart?: Weekday;
   /** BCP 47 locale for month and weekday names (`useUserPreferencesStore().locale`). */
   locale?: string;
+  /**
+   * `date` (default): `v-model` is a `Date` (or `Date[]` for a range).
+   * `string`: `v-model` is a bare calendar date `YYYY-MM-DD` (or a pair of them), and
+   * a cleared field is `''`. The day travels through local midnight both ways, so no
+   * timezone can move it by one — the shape a "paid until" or a sprint end wants.
+   */
+  valueType?: 'date' | 'string';
+  /** Earliest selectable day (`YYYY-MM-DD` or a `Date`); earlier days are disabled. */
+  min?: Date | CalendarDate;
+  /** Latest selectable day (`YYYY-MM-DD` or a `Date`); later days are disabled. */
+  max?: Date | CalendarDate;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -30,12 +45,47 @@ const props = withDefaults(defineProps<Props>(), {
   placeholder: 'Select date',
   weekStart: 1,
   locale: 'en-US',
+  valueType: 'date',
+  min: undefined,
+  max: undefined,
 });
 
-const model = defineModel<Date | Date[] | null>({ default: null });
+const model = defineModel<PickerValue>({ default: null });
 
-// A date-fns pattern (`dd MMM yy`) would name months in English whatever `locale`
-// says, so the input is written through Intl in the given locale (`13 сент. 26 г.`).
+const pad = (n: number): string => String(n).padStart(2, '0');
+
+/** `YYYY-MM-DD` → that day's local midnight; anything malformed is no date. */
+const toDate = (value: CalendarDate): Date | null => {
+  const [y, m, d] = value.split('-').map((part) => Number.parseInt(part, 10));
+  return y && m && d ? new Date(y, m - 1, d) : null;
+};
+const toCalendarDate = (date: Date): CalendarDate =>
+  `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+const asDate = (value: Date | CalendarDate | undefined): Date | undefined =>
+  typeof value === 'string' ? (toDate(value) ?? undefined) : value;
+
+const minDate = computed(() => asDate(props.min));
+const maxDate = computed(() => asDate(props.max));
+
+/** A pick outside the bounds (typed, or from a stale value) snaps to the nearest one. */
+const clamp = (date: Date): Date => {
+  if (minDate.value && date < minDate.value) return minDate.value;
+  if (maxDate.value && date > maxDate.value) return maxDate.value;
+  return date;
+};
+
+/** What the calendar itself holds: always `Date`s. */
+const pickerValue = computed<Date | Date[] | null>(() => {
+  const value = model.value;
+  if (value == null || value === '') return null;
+  if (Array.isArray(value)) {
+    return (value as (Date | CalendarDate)[])
+      .map((v) => (typeof v === 'string' ? toDate(v) : v))
+      .filter((v): v is Date => v instanceof Date);
+  }
+  return typeof value === 'string' ? toDate(value) : value;
+});
+
 const INPUT_DATE_FORMAT: Intl.DateTimeFormatOptions = {
   day: 'numeric',
   month: 'short',
@@ -43,8 +93,6 @@ const INPUT_DATE_FORMAT: Intl.DateTimeFormatOptions = {
 };
 const formatInput = computed(() => {
   const locale = props.locale;
-  // The widget re-runs the formatter whenever it changes (a live locale switch),
-  // including on an empty picker, so a missing date renders as nothing.
   const one = (date: Date | null) =>
     date ? date.toLocaleDateString(locale, INPUT_DATE_FORMAT) : '';
   return (value: Date | Date[] | null) =>
@@ -52,11 +100,21 @@ const formatInput = computed(() => {
 });
 
 const emit = defineEmits<{
-  (e: 'change', value: Date | Date[] | null): void;
+  (e: 'change', value: PickerValue): void;
 }>();
 
-const onChange = (value: Date | Date[] | null) => {
-  emit('change', value);
+const onPick = (value: Date | Date[] | null) => {
+  let next: PickerValue;
+  if (props.valueType === 'string') {
+    if (Array.isArray(value)) next = value.filter(Boolean).map((d) => toCalendarDate(clamp(d)));
+    else next = value ? toCalendarDate(clamp(value)) : '';
+  } else if (Array.isArray(value)) {
+    next = value.filter(Boolean).map(clamp);
+  } else {
+    next = value ? clamp(value) : null;
+  }
+  model.value = next;
+  emit('change', next);
 };
 </script>
 
@@ -69,8 +127,10 @@ const onChange = (value: Date | Date[] | null) => {
     }"
   >
     <VueDatePicker
-      v-model="model"
+      :model-value="pickerValue"
       :range="isRange"
+      :min-date="minDate"
+      :max-date="maxDate"
       :enable-time-picker="false"
       :clearable="isClearable"
       :placeholder="placeholder"
@@ -80,7 +140,7 @@ const onChange = (value: Date | Date[] | null) => {
       dark
       teleport
       :format="formatInput"
-      @update:model-value="onChange"
+      @update:model-value="onPick"
     />
   </div>
 </template>
