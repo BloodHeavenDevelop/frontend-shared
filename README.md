@@ -28,7 +28,7 @@ cyrillic, Syne latin).
 
 ```
 AppIcon  AppLoadingIndicator  Badge  Banner  Button  ButtonBack  Checkbox  CircularLoader
-DatePicker  DateRangeFilter  EnvBulkInput  Form  FormInput  FormSelect  FormTextarea
+DatePicker  DateRangeFilter  Form  FormInput  FormSelect  FormTextarea
 IconButton  Input  MobileNav  Modal  MultiSelect  NavDropdown  PopupBox  PopupContainer
 SearchInput  SegmentedControl  Table  TableActions  TableInput  Toast  ToastsContainer  Toggle
 ```
@@ -67,6 +67,9 @@ the only single-value select: `HmSelect` is gone, and a native `<select>` is not
 words: `searchPlaceholder`, `emptyLabel`, `clearLabel`.
 
 Auto-import preserves the familiar names: `components/ui/Button/Button.vue` → `<UiButton>`.
+
+Every component folder holds a `preview.png` — the component rendered from this layer in
+its usual states, so a reader can see it without running an app.
 
 `DatePicker` and `DateRangeFilter` take optional `weekStart` (`0`–`6`, Sunday = 0; default
 Monday) and `locale` (BCP 47; default `en-US`) props. Timezone and locale are account
@@ -251,7 +254,6 @@ exist there:
 
 | Component          | Requires in the application                                                     |
 | ------------------ | ------------------------------------------------------------------------------- |
-| `EnvBulkInput`     | `~/utils/parse-env`                                                            |
 | `Table`            | `~/composables/use-table-column-preferences`                                   |
 | `PopupContainer`   | `~/composables/use-popup-components`, `~/composables/use-popup-management`, `~/types/popup/interfaces` |
 | `Modal/TFAModal`   | `~/composables/use-popup-control`, `~/composables/use-tfa-modal`, `~/types/popup` |
