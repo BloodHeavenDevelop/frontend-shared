@@ -58,7 +58,10 @@ field by default; `filter` makes it the 30 px toolbar box reading
 `Placeholder: Value`. `clearable` adds the `×` (it emits `undefined`); `creatable` offers the typed text as a
 last row tagged `createLabel` (a branch that is not fetched yet). `class`/`style` go
 on the root, every other attribute (`id`, `name`, `aria-*`) on the trigger button, so
-`<label for>` works. `size` and `searchable` are accepted and ignored (one control height,
+`<label for>` works. Inside a Nuxt UI `<UFormField>` it takes the field's id and `name`, reports
+`aria-invalid`/`aria-describedby`, turns its border `--hm-error` on a field error, and emits
+the field's `change` (on a pick or a clear) and `blur` (when the panel closes), so a form
+validating on those events runs. `size` and `searchable` are accepted and ignored (one control height,
 search always on). There is no `multiple` — several values are `<UiMultiSelect>`. It is
 the only single-value select: `HmSelect` is gone, and a native `<select>` is not used. UI
 words: `searchPlaceholder`, `emptyLabel`, `clearLabel`.

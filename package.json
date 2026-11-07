@@ -1,6 +1,6 @@
 {
   "name": "@bloodheaven/frontend-shared",
-  "version": "0.13.0",
+  "version": "0.13.1",
   "description": "Shared Nuxt-layer BloodHeaven: canonical UI-primitives design-system (.hm-*)",
   "type": "module",
   "private": false,

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref, useAttrs, watch } from 'vue';
+import { useFormField } from '@nuxt/ui/composables';
 import type { FormSelectOption } from './types';
 
 // DESIGN_MANIFEST.md § 10.6 — the single-value select. It is the one-value sibling of
@@ -67,6 +68,24 @@ const triggerAttrs = computed(() => {
   return rest;
 });
 
+// Inside a `<UFormField>` the field's label points at the id the field hands out and
+// its form validates on the field's events — the same wiring Nuxt UI's own inputs do.
+// Getters, so an `id`/`name`/`disabled` that changes later is still seen.
+const formField = useFormField({
+  get id() {
+    return attrs.id as string | undefined;
+  },
+  get name() {
+    return attrs.name as string | undefined;
+  },
+  get disabled() {
+    return props.disabled;
+  },
+});
+const triggerId = computed(() => formField.id.value);
+const triggerName = computed(() => formField.name.value);
+const hasError = computed(() => formField.color.value === 'error');
+
 const PANEL_MIN_WIDTH = 248;
 const PANEL_MAX_WIDTH = 320;
 const DROPDOWN_GAP = 8;
@@ -104,7 +123,7 @@ const selectedLabel = computed(() =>
 );
 // An option whose value is '' ("All") counts as chosen when the model is '' too.
 const showsValue = computed(() => !!selectedOption.value || hasValue.value);
-const isDisabled = computed(() => props.disabled || props.loading);
+const isDisabled = computed(() => !!formField.disabled.value || props.loading);
 
 const needle = computed(() => search.value.trim().toLowerCase());
 const matches = computed<SelectOption[]>(() => {
@@ -188,20 +207,25 @@ const open = () => {
 };
 
 const close = (returnFocus = false) => {
+  if (!isOpen.value) return;
   isOpen.value = false;
   if (returnFocus) triggerEl.value?.focus();
+  // Leaving the panel is the field's blur: a form validating on blur runs now.
+  formField.emitFormBlur();
 };
 
 const pick = (option: SelectOption) => {
   if (option.disabled) return;
   if (option.create || key(option.value) !== key(props.modelValue) || !selectedOption.value) {
     emit('update:modelValue', option.value);
+    formField.emitFormChange();
   }
   close(true);
 };
 
 const clear = () => {
   emit('update:modelValue', undefined);
+  formField.emitFormChange();
 };
 
 const moveActive = (delta: number) => {
@@ -295,6 +319,7 @@ onBeforeUnmount(() => listen(false));
     :class="{
       'hm-multiselect--open': isOpen,
       'hm-multiselect--disabled': isDisabled,
+      'hm-multiselect--error': hasError,
       'hm-multiselect--form': !filter,
     }"
   >
@@ -302,7 +327,9 @@ onBeforeUnmount(() => listen(false));
       ref="triggerEl"
       type="button"
       class="hm-multiselect__trigger"
-      v-bind="triggerAttrs"
+      v-bind="{ ...triggerAttrs, ...formField.ariaAttrs.value }"
+      :id="triggerId"
+      :name="triggerName"
       :disabled="isDisabled"
       aria-haspopup="listbox"
       :aria-expanded="isOpen"

@@ -1198,6 +1198,12 @@ input.hm-input:not(.hm-controls-search):not(.hm-input--toolbar),
   opacity: 0.5;
 }
 
+/* A field whose form reports an error (§ 10.9) — the `.hm-input--error` border. */
+.hm-multiselect--error,
+.hm-multiselect--error:hover {
+  border-color: var(--hm-error);
+}
+
 /* A form field (§ 10.7.4): full width, the form control height, recessed like `.hm-input`. */
 .hm-multiselect--form {
   display: flex;
