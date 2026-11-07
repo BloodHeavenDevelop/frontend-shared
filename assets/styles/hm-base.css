@@ -1474,6 +1474,25 @@ input.hm-input:not(.hm-controls-search):not(.hm-input--toolbar),
   color: var(--hm-muted);
 }
 
+/* The single-value form of the same control — `<UiFormSelect>` (§ 10.6). No checkbox:
+   the chosen row reads in the accent with a check at its end; the rest is shared. */
+.hm-multiselect__option--selected {
+  color: var(--hm-accent);
+}
+
+.hm-multiselect__check {
+  flex-shrink: 0;
+  color: var(--hm-accent);
+}
+
+/* Doubled up to outrank `.hm-spinner`, which is declared further down. */
+.hm-multiselect .hm-multiselect__spinner {
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  color: var(--hm-muted);
+}
+
 /* === Toggle Switch === */
 .hm-toggle {
   position: relative;

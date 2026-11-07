@@ -29,7 +29,7 @@ cyrillic, Syne latin).
 ```
 AppIcon  AppLoadingIndicator  Badge  Banner  Button  ButtonBack  Checkbox  CircularLoader
 DatePicker  DateRangeFilter  EnvBulkInput  Form  FormInput  FormSelect  FormTextarea
-HmSelect  IconButton  Input  MobileNav  Modal  MultiSelect  NavDropdown  PopupBox  PopupContainer
+IconButton  Input  MobileNav  Modal  MultiSelect  NavDropdown  PopupBox  PopupContainer
 SearchInput  SegmentedControl  Table  TableActions  TableInput  Toast  ToastsContainer  Toggle
 ```
 
@@ -48,6 +48,20 @@ names the filter; `size="form"` makes it a field at the control height whose `la
 placeholder. The panel always opens with a focused search field and stays open while values
 are picked. Its UI words default to English — pass `searchPlaceholder`, `emptyLabel`,
 `allLabel`, `clearLabel`, `selectedLabel`, `ofLabel` from the app's i18n.
+
+`FormSelect` (`<UiFormSelect>`, manifest § 10.6) is its single-value sibling and wears the
+same `.hm-multiselect*` skin: the same trigger and the same body-teleported panel with a
+search field at the top, but no checkboxes (the chosen row carries an accent check) and a
+pick closes the panel. `v-model` is one value; `options` take the same `count?`/`tone?`/
+`disabled?`, plus `hint?` (muted text at the row's end, matched by the search). A form
+field by default; `filter` makes it the 30 px toolbar box reading
+`Placeholder: Value`. `clearable` adds the `×` (it emits `undefined`); `creatable` offers the typed text as a
+last row tagged `createLabel` (a branch that is not fetched yet). `class`/`style` go
+on the root, every other attribute (`id`, `name`, `aria-*`) on the trigger button, so
+`<label for>` works. `size` and `searchable` are accepted and ignored (one control height,
+search always on). There is no `multiple` — several values are `<UiMultiSelect>`. It is
+the only single-value select: `HmSelect` is gone, and a native `<select>` is not used. UI
+words: `searchPlaceholder`, `emptyLabel`, `clearLabel`.
 
 Auto-import preserves the familiar names: `components/ui/Button/Button.vue` → `<UiButton>`.
 
@@ -255,7 +269,6 @@ canonical version was chosen per `DESIGN_MANIFEST.md`:
 | -------------------- | ----- | ---------------------------------------------------------------------------- |
 | `Button`             | auth  | § 17.1: the spinner is centered with negative margins, not `transform` (that gets overridden by the `hm-spin` animation). The ai/hm versions broke the rule. |
 | `FormSelect`         | auth  | § 11.2 / p. 1298: added a `filter` affordance (pixel-twin of `.hm-input`, 30px, mono, 8px). |
-| `HmSelect`           | hm    | § 11.2: the same `filter` affordance for the toolbar.                       |
 | `Modal/TFAModal`     | auth  | i18n instead of hardcoded strings — more complete and correct.             |
 
 All other components were identical across frontends. (`DateTimePickerUtc` also

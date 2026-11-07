@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref, toRef } from 'vue';
 import type { RouteLocationRaw } from 'vue-router';
 
 import { NuxtLink } from '#components';
+import FormSelect from '../FormSelect/FormSelect.vue';
 import Pagination from '../Table/Pagination/Pagination.vue';
 import type { TableColumn } from '../Table/types';
 import { useTableColumnPreferences } from '~/composables/use-table-column-preferences';
@@ -58,13 +59,14 @@ const emit = defineEmits<{
   (e: 'reset-filters' | 'refresh-table' | 'download-csv'): void;
 }>();
 
-const pageRowsOptions = [10, 20, 50, 100];
+const pageRowsOptions = [10, 20, 50, 100].map((size) => ({ label: String(size), value: size }));
 
 const tableRows = computed(() => props.rows ?? []);
 
-function onRowsPerPageChange(value: number) {
+function onRowsPerPageChange(value: string | number | undefined) {
+  if (value == null) return;
   emit('update:page', 1);
-  emit('update:rowsPerPage', value);
+  emit('update:rowsPerPage', Number(value));
 }
 
 function toggleSort(column?: string) {
@@ -327,9 +329,15 @@ const mobileFieldColumns = computed(() => displayColumns.value.slice(1));
 /** Column headers are gone on a phone, so sorting gets an explicit control. */
 const sortableColumns = computed(() => displayColumns.value.filter((column) => !!column.sortBy));
 
-function onMobileSortChange(event: Event) {
-  const value = (event.target as HTMLSelectElement).value;
-  if (value) emit('update:sort', { sortBy: value });
+const sortOptions = computed(() =>
+  sortableColumns.value.map((column) => ({
+    label: column.label || column.key,
+    value: column.sortBy as string,
+  })),
+);
+
+function onMobileSortChange(value: string | number | undefined) {
+  if (value) emit('update:sort', { sortBy: String(value) });
 }
 
 function toggleSortDirection() {
@@ -636,20 +644,14 @@ const refreshTableData = () => {
           v-if="sortableColumns.length"
           class="hm-msort"
         >
-          <select
-            class="hm-select hm-msort__select"
-            :value="sortBy"
-            aria-label="Sort by"
-            @change="onMobileSortChange"
-          >
-            <option
-              v-for="column in sortableColumns"
-              :key="column.key"
-              :value="column.sortBy"
-            >
-              {{ column.label || column.key }}
-            </option>
-          </select>
+          <FormSelect
+            class="hm-msort__select"
+            :model-value="sortBy"
+            :options="sortOptions"
+            placeholder="Sort by"
+            filter
+            @update:model-value="onMobileSortChange"
+          />
           <button
             type="button"
             class="hm-btn hm-btn--neutral hm-msort__dir"
@@ -706,18 +708,14 @@ const refreshTableData = () => {
         <div class="hm-pagination-info">
           <div class="hm-pagination-rows">
             <label>Rows per page:</label>
-            <!-- Skin and panel come from the layer's `app.config.ts` (variant `hm`);
-                 all that belongs here is the 32px height that lines the trigger up
-                 with the page buttons, and a width that does not jump between "10"
-                 and "100". Never override the trigger's inline-end padding: the
-                 chevron is absolutely positioned at the trigger's end, and that
-                 padding is the only room reserved for it. -->
-            <USelectMenu
+            <!-- The same select as everywhere else, at the 32px of the page buttons and
+                 a width that does not jump between "10" and "100". -->
+            <FormSelect
+              class="hm-pager-size"
               :model-value="rowsPerPage"
-              :items="pageRowsOptions"
-              :search-input="false"
-              size="xs"
-              class="h-[32px] w-[72px] min-h-0 py-0"
+              :options="pageRowsOptions"
+              placeholder="Rows"
+              aria-label="Rows per page"
               @update:model-value="onRowsPerPageChange"
             />
           </div>
@@ -1068,6 +1066,14 @@ const refreshTableData = () => {
 
 .hm-msort__select {
   flex: 1;
+  min-width: 0;
+}
+
+.hm-pager-size {
+  width: 84px;
+  min-width: 0;
+  min-height: 0;
+  height: 32px;
 }
 
 .hm-msort__dir {
