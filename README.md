@@ -70,6 +70,9 @@ Auto-import preserves the familiar names: `components/ui/Button/Button.vue` → 
 
 Every component folder holds a `preview.png` — the component rendered from this layer in
 its usual states, so a reader can see it without running an app.
+`previews/nuxt-ui/` shows the Nuxt UI components the applications use directly under
+this layer's theme (`UFormField`, `UInput`, `UTextarea`, `UForm`, `UIcon`), and
+`previews/pages/` the layer's own `verify` and `unsubscribe` pages.
 
 `DatePicker` and `DateRangeFilter` take optional `weekStart` (`0`–`6`, Sunday = 0; default
 Monday) and `locale` (BCP 47; default `en-US`) props. Timezone and locale are account
