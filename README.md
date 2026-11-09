@@ -27,10 +27,11 @@ cyrillic, Syne latin).
 `components/ui/` — universal design-system primitives (used across all frontends):
 
 ```
-AppIcon  AppLoadingIndicator  Badge  Banner  Button  ButtonBack  Checkbox  CircularLoader
-DatePicker  DateRangeFilter  Form  FormInput  FormSelect  FormTextarea
-IconButton  Input  MobileNav  Modal  MultiSelect  NavDropdown  PopupBox  PopupContainer
-SearchInput  SegmentedControl  Table  TableActions  TableInput  Toast  ToastsContainer  Toggle
+AppBody  AppFooter  AppHeader  AppIcon  AppLayout  AppLoadingIndicator  Badge  Banner
+Button  ButtonBack  Checkbox  CircularLoader  DatePicker  DateRangeFilter  Form  FormInput
+FormSelect  FormTextarea  IconButton  Input  MobileNav  Modal  MultiSelect  NavDropdown
+PopupBox  PopupContainer  SearchInput  SegmentedControl  Table  TableActions  TableInput
+ThemeSwitcher  Toast  ToastsContainer  Toggle
 ```
 
 `Checkbox` (`<UiCheckbox>`, manifest § 13.6) is the form checkbox — `label`, optional
@@ -72,7 +73,8 @@ Every component folder holds a `preview.png` — the component rendered from thi
 its usual states, so a reader can see it without running an app.
 `previews/nuxt-ui/` shows the Nuxt UI components the applications use directly under
 this layer's theme (`UFormField`, `UInput`, `UTextarea`, `UForm`, `UIcon`), and
-`previews/pages/` the layer's own `verify` and `unsubscribe` pages.
+`previews/pages/` the layer's own `verify` and `unsubscribe` pages, and `previews/themes/`
+the shell in each theme.
 
 `DatePicker` and `DateRangeFilter` take optional `weekStart` (`0`–`6`, Sunday = 0; default
 Monday) and `locale` (BCP 47; default `en-US`) props. Timezone and locale are account
@@ -208,6 +210,89 @@ so once you remove the local `components/ui` those imports break. Two options:
    and for the non-component exports (`useToasts`, the `TableColumn`/`ButtonVariant`/`BadgeVariant`
    types) move them into the layer's auto-imported directories. More work, cleaner result.
 
+## Themes — since v0.16.0
+
+The palette and the typefaces are a **theme**: a block of `--hm-*` values under
+`:root[data-theme='<id>']` in `assets/styles/themes/<id>.css`, imported by `hm-base.css`.
+Every rule in `hm-base.css` and every `components/ui/*` style reads colour and type only
+through these tokens (no literal `rgba(…)`/hex outside the theme files — a tint is
+`color-mix(in srgb, var(--hm-accent) 30%, transparent)`), so a theme never touches a
+selector.
+
+| Theme | Id | Scheme | What it is |
+| --- | --- | --- | --- |
+| **Nocturne** | `nocturne` | dark | The original BloodHeaven palette — cyan on near-black, JetBrains Mono + Syne. The default: it also answers on a bare `:root`. |
+| **Daylight** | `daylight` | light | Generalised from SwitchCase's tokenizer-crm and tokenizer-bi: off-white page, white surfaces, hairline grey borders, blue accent, system sans-serif. |
+
+Tokens a theme defines: `--hm-bg`, `--hm-surface`, `--hm-border`, `--hm-accent`,
+`--hm-text`, `--hm-muted`, the status set (`--hm-ok`, `--hm-error`, `--hm-active`,
+`--hm-paused`, `--hm-paused-l`, `--hm-warning`, `--hm-purple`, `--hm-purple-l`),
+`--hm-on-accent` (text on an accent fill), `--hm-bezel` (the body's 8 px frame),
+`--hm-shadow` (shadow ink, mixed down per use), `--hm-overlay` (modal backdrop),
+`--hm-font-body`, `--hm-font-display`, and `color-scheme`. Theme-independent geometry
+(`--hm-control-height`, …) stays in `hm-base.css`.
+
+`useTheme()` (auto-imported) returns `{ theme, current, themes, setTheme }`. The choice
+is a per-browser preference, not an account setting: a `bh-theme` cookie on the
+platform's parent domain (so one pick follows the user across `*.bh.localhost` /
+`*.bloodheaven.nexus`) plus `localStorage` as the fallback. The layer's `nuxt.config.ts`
+inlines a tiny boot script into every page's `<head>` that puts the stored theme on
+`<html>` before the first paint — the apps need no wiring for it. `setTheme` also moves
+`@nuxtjs/color-mode` (Nuxt UI's) to the theme's scheme, so the `dark` class on `<html>`
+follows the palette.
+
+`<UiThemeSwitcher>` is the `theme: <name>` pill that cycles through the registry; it
+closes `<UiAppFooter>`'s right column and the phone nav sheet's status row.
+
+**Adding a theme:** write `assets/styles/themes/<id>.css` with the full token set (copy
+`nocturne.css`), `@import` it in `hm-base.css` next to the others, add it to `THEMES`
+in `theme/registry.ts`. Nothing else changes.
+
+**In the applications:** a colour in an app's own styles must be a token too, or it stays
+dark under Daylight. The `spa-loading-template.html` splash, which renders before any
+stylesheet, carries its own `html[data-theme='daylight']` colours.
+
+## Application shell — since v0.16.0
+
+Header, body and footer are one shared shell, identical in every frontend; an app only
+fills it with data, elements and buttons. `layouts/default.vue` is:
+
+```vue
+<UiAppLayout
+  :title="t('common.appName')"
+  :entries="navEntries"
+  :profile-url="profileUrl"
+  :show-sign-out="!authDisabled"
+  :meta="{ version: appVersion, buildSha, env: appEnv, online }"
+  @sign-out="signOut"
+>
+  <slot />
+</UiAppLayout>
+```
+
+| Component | Renders |
+| --- | --- |
+| `<UiAppLayout>` | `.hm-page` + grid background + the three below + `<UiMobileNav>` fed the same data. |
+| `<UiAppHeader>` | Logo · nav entries · divider · `#header-actions` (page teleport target) · My Profile · Sign Out. |
+| `<UiAppBody>` | `<main class="hm-canvas">`. |
+| `<UiAppFooter>` | `App vX · build sha` · online pill · `env:` pill · theme switcher. |
+
+`entries` are `AppNavEntry[]` (`components/ui/AppHeader/types.ts`): links `{ to, label }`
+and dropdown groups `{ label, items }`, either with `dividerBefore: true` to draw a divider
+in front of it. `buildSha` may be the full hash (it is cut to 7). `isActive` overrides the
+"path or a sub-path" match; `profileTo` replaces `profileUrl` on the auth surface itself;
+`profileLabel`, `signOutLabel`, `onlineLabel`, `offlineLabel`, `themeLabel` carry the
+app's translations; `:theme-switcher="false"` hides the pill.
+
+Slots for what data cannot express — `logo`, `header-left` (after the logo: a project
+switcher), `header-center` (between logo and nav: a one-off call to action),
+`header-nav` (after the entries: an unread-events link), `header-account` (replaces My
+Profile / Sign Out: a public surface's "Sign in"), `header-end` (after them: a language
+switcher), `footer-left` / `footer-center` / `footer-right`, and `mobile-identity` (the
+phone sheet's identity block). Below 768 px the header keeps only the logo and
+`#header-actions`, so anything in a header slot that a phone user needs goes into
+`mobile-identity` too.
+
 ## Mobility (≤ 768 px) — since v0.5.0
 
 The phone layout of every frontend is delivered from here, per
@@ -224,7 +309,7 @@ drag handle, and toasts move to the bottom edge above the tab bar.
 `${key}-data` slots) with an explicit sort control and compact pagination.
 
 **The one required change** — mount the tab bar in `layouts/default.vue`, feeding it the
-nav entries the desktop header already computes:
+nav entries the desktop header already computes (`<UiAppLayout>` does this for you):
 
 ```vue
 <UiMobileNav

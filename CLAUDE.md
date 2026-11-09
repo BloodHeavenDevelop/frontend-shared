@@ -46,6 +46,14 @@ Tailwind Variants (`slots`/`variants`), и мержатся поверх биб�
 - Импорты `~/composables`, `~/stores`, `~/utils`, `~/types`, `~/constants`, `~/services`,
   `~/api` намеренно остаются — это контракт приложения (см. таблицу в README). Доменный
   код сюда не переносим.
+- **Темы.** Палитра и шрифты — тема: блок `--hm-*` под `:root[data-theme='<id>']` в
+  `assets/styles/themes/<id>.css` (Nocturne — тёмная, по умолчанию; Daylight — светлая).
+  Вне файлов тем никаких литеральных `rgba(…)`/hex в `hm-base.css` и `components/ui/*` —
+  только токены, оттенок = `color-mix(in srgb, var(--hm-accent) 30%, transparent)`.
+  Выбор темы — `useTheme()` / `<UiThemeSwitcher>`, см. README → Themes.
+- **Каркас приложения** (хэдер, тело, футер, мобильная навигация) — `<UiAppLayout>`
+  (`AppHeader`/`AppBody`/`AppFooter`). Лэйаут приложения только наполняет его данными и
+  слотами; свою разметку `.hm-header`/`.hm-footer` в приложениях не держим.
 - При расхождении версий между фронтами канон определяется по DESIGN_MANIFEST.md.
 - Любой апдейт сущностей в UI — через amqp на messengers-gateway (см. корневой CLAUDE.md).
 - Время приходит с бэка в **UTC**; отображаем в таймзоне пользователя в формате

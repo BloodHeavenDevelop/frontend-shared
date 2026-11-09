@@ -900,7 +900,7 @@ const refreshTableData = () => {
 .hm-column-toggle-btn--active {
   color: var(--hm-accent);
   border-color: var(--hm-accent);
-  background: rgba(0, 212, 255, 0.08);
+  background: color-mix(in srgb, var(--hm-accent) 8%, transparent);
 }
 
 .hm-column-menu {
@@ -913,14 +913,14 @@ const refreshTableData = () => {
   background: var(--hm-surface);
   border: 1px solid var(--hm-border);
   border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--hm-shadow) 40%, transparent);
   padding: 8px 0;
   z-index: 50;
 }
 
 .hm-column-menu__title {
   padding: 4px 12px 8px;
-  font-family: 'Syne', sans-serif;
+  font-family: var(--hm-font-display);
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
@@ -945,7 +945,7 @@ const refreshTableData = () => {
   align-items: center;
   gap: 8px;
   padding: 6px 12px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--hm-font-body);
   font-size: 12px;
   color: var(--hm-text);
   cursor: pointer;
@@ -953,7 +953,7 @@ const refreshTableData = () => {
 }
 
 .hm-column-menu__label:hover {
-  background: rgba(0, 212, 255, 0.08);
+  background: color-mix(in srgb, var(--hm-accent) 8%, transparent);
   color: var(--hm-accent);
 }
 
@@ -972,7 +972,7 @@ const refreshTableData = () => {
 }
 
 .hm-th-label {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--hm-font-display);
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
@@ -982,7 +982,7 @@ const refreshTableData = () => {
 
 /* Body rows */
 .grid-row--body {
-  border-bottom: 1px solid rgba(28, 35, 51, 0.5);
+  border-bottom: 1px solid color-mix(in srgb, var(--hm-border) 50%, transparent);
   transition: background 0.15s;
   text-decoration: none;
 }
@@ -992,12 +992,12 @@ const refreshTableData = () => {
 }
 
 .grid-row--body:hover {
-  background: rgba(0, 212, 255, 0.03);
+  background: color-mix(in srgb, var(--hm-accent) 3%, transparent);
 }
 
 .grid-cell--body {
   padding: 10px 16px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--hm-font-body);
   font-size: 13px;
   color: var(--hm-text);
   display: flex;
@@ -1019,7 +1019,7 @@ const refreshTableData = () => {
 }
 
 .grid-row--body:hover .grid-cell--sticky {
-  background: color-mix(in srgb, var(--hm-surface) 97%, rgba(0, 212, 255, 0.03));
+  background: color-mix(in srgb, var(--hm-surface) 97%, color-mix(in srgb, var(--hm-accent) 3%, transparent));
 }
 
 /* Pagination bar */
@@ -1036,7 +1036,7 @@ const refreshTableData = () => {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--hm-font-body);
   font-size: 12px;
   color: var(--hm-muted);
 }

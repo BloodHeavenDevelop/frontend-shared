@@ -172,7 +172,7 @@ const popupTitle = computed(() =>
 }
 
 .tfa-modal__lead {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--hm-font-body);
   font-size: 13px;
   line-height: 1.5;
   color: var(--hm-text);
@@ -190,7 +190,7 @@ const popupTitle = computed(() =>
 }
 
 .tfa-modal__hint {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--hm-font-body);
   font-size: 12px;
   color: var(--hm-muted);
 }
@@ -212,7 +212,7 @@ const popupTitle = computed(() =>
 }
 
 .tfa-modal__error {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--hm-font-body);
   font-size: 11px;
   color: var(--hm-error);
 }

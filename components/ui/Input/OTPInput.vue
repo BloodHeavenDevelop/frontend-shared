@@ -123,7 +123,7 @@ onMounted(async () => {
   border: 1px solid var(--hm-border);
   border-radius: 8px;
   color: var(--hm-text);
-  font-family: 'Syne', sans-serif;
+  font-family: var(--hm-font-display);
   font-size: 20px;
   font-weight: 800;
   outline: none;
@@ -141,7 +141,7 @@ onMounted(async () => {
 
 .hm-otp__error {
   text-align: center;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--hm-font-body);
   font-size: 11px;
   color: var(--hm-error);
 }

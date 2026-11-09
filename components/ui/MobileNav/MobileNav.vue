@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, ref, watch } from 'vue';
 
 import { isMobileNavGroup } from '../MobileNav/types';
+import ThemeSwitcher from '../ThemeSwitcher/ThemeSwitcher.vue';
 import type { MobileNavEntry, MobileNavLink, MobileNavMeta } from '../MobileNav/types';
 
 /**
@@ -27,6 +28,13 @@ const props = withDefaults(
     signOutLabel?: string;
     showSignOut?: boolean;
     meta?: MobileNavMeta;
+    onlineLabel?: string;
+    offlineLabel?: string;
+    /** Overrides the default "path or a sub-path of it" match. */
+    isActive?: (to: string) => boolean;
+    /** The footer's theme pill, relocated with the rest of its slots. */
+    themeSwitcher?: boolean;
+    themeLabel?: string;
   }>(),
   {
     maxTabs: 3,
@@ -36,6 +44,11 @@ const props = withDefaults(
     signOutLabel: 'Sign Out',
     showSignOut: false,
     meta: undefined,
+    onlineLabel: 'online',
+    offlineLabel: 'offline',
+    isActive: undefined,
+    themeSwitcher: false,
+    themeLabel: 'theme',
   },
 );
 
@@ -53,7 +66,8 @@ const tabs = computed(() => flatLinks.value.slice(0, props.maxTabs));
 
 const sheetLinks = computed(() => flatLinks.value.slice(props.maxTabs));
 
-const isActiveRoute = (path: string) => route.path === path || route.path.startsWith(`${path}/`);
+const isActiveRoute = (path: string) =>
+  props.isActive ? props.isActive(path) : route.path === path || route.path.startsWith(`${path}/`);
 
 /** "More" reflects the routes it hides, so the bar never shows an active-less state. */
 const isMoreActive = computed(
@@ -98,7 +112,8 @@ const onSignOut = () => {
 
 const hasMeta = computed(
   () =>
-    !!props.meta && (!!props.meta.version || !!props.meta.env || props.meta.online !== undefined),
+    props.themeSwitcher ||
+    (!!props.meta && (!!props.meta.version || !!props.meta.env || props.meta.online !== undefined)),
 );
 </script>
 
@@ -223,7 +238,7 @@ const hasMeta = computed(
               class="hm-dot"
               :class="meta.online ? 'hm-dot--ok' : 'hm-dot--error'"
             />
-            {{ meta.online ? 'online' : 'offline' }}
+            {{ meta.online ? onlineLabel : offlineLabel }}
           </span>
           <span
             v-if="meta?.env"
@@ -231,6 +246,10 @@ const hasMeta = computed(
           >
             env: {{ meta.env }}
           </span>
+          <ThemeSwitcher
+            v-if="themeSwitcher"
+            :label="themeLabel"
+          />
         </div>
       </div>
     </div>
@@ -273,7 +292,7 @@ const hasMeta = computed(
   margin-top: 16px;
   padding-top: 16px;
   border-top: 1px solid var(--hm-border);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--hm-font-body);
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.5px;

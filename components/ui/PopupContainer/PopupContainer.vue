@@ -57,7 +57,7 @@ const handleBackdropClick = (popupId: string) => {
         leave-to-class="opacity-0"
       >
         <div
-          class="absolute inset-0 flex items-center justify-center w-full h-full max-h-screen py-5 mx-auto overflow-auto bg-black/60 backdrop-blur-[4px]"
+          class="absolute inset-0 flex items-center justify-center w-full h-full max-h-screen py-5 mx-auto overflow-auto bg-(--hm-overlay) backdrop-blur-[4px]"
           @click.self="handleBackdropClick(popup.id)"
         >
           <Transition

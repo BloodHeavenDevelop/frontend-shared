@@ -27,7 +27,7 @@ const loading = useLoadingIndicator().isLoading;
   height: 100%;
   width: 100%;
   background: linear-gradient(90deg, var(--hm-accent), var(--hm-purple));
-  box-shadow: 0 0 8px rgba(0, 212, 255, 0.5);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--hm-accent) 50%, transparent);
   transition:
     width 0.2s ease-out,
     opacity 0.3s;

@@ -48,8 +48,8 @@ withDefaults(defineProps<Props>(), {
 }
 
 .hm-icon-btn--toolbar:hover:not(:disabled) {
-  background: rgba(0, 212, 255, 0.08);
-  border-color: rgba(0, 212, 255, 0.3);
+  background: color-mix(in srgb, var(--hm-accent) 8%, transparent);
+  border-color: color-mix(in srgb, var(--hm-accent) 30%, transparent);
 }
 
 .hm-icon-btn--ghost {
@@ -59,7 +59,7 @@ withDefaults(defineProps<Props>(), {
 }
 
 .hm-icon-btn--ghost:hover:not(:disabled) {
-  background: rgba(0, 212, 255, 0.08);
+  background: color-mix(in srgb, var(--hm-accent) 8%, transparent);
   color: var(--hm-accent);
 }
 

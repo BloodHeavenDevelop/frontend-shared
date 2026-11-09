@@ -18,7 +18,18 @@
 // (composables, stores, utils, types, constants, services). In a Nuxt layer these
 // `~` aliases resolve against the CONSUMING app, so every app that extends this
 // layer must provide them. See README.md → "Контракт приложения".
+import { THEME_BOOT_SCRIPT } from './theme/registry';
+
 export default defineNuxtConfig({
+  // The stored colour theme goes on <html> before the first paint — see
+  // theme/registry.ts. Nuxt merges `app.head` across layers, so applications
+  // get this without listing it.
+  app: {
+    head: {
+      script: [{ key: 'hm-theme-boot', innerHTML: THEME_BOOT_SCRIPT, tagPosition: 'head' }],
+    },
+  },
+
   // Keep components at the repo root (mirrors the consuming apps' layout) so the
   // auto-import names match one-to-one: components/ui/Button/Button.vue -> <UiButton>.
   components: true,

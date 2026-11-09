@@ -68,7 +68,7 @@ const onSelect = (value: T, disabled?: boolean) => {
   background: transparent;
   border: none;
   border-radius: 6px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--hm-font-body);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.5px;
@@ -95,11 +95,11 @@ const onSelect = (value: T, disabled?: boolean) => {
 
 .hm-segmented__item:hover:not(:disabled):not(.hm-segmented__item--active) {
   color: var(--hm-text);
-  background: rgba(0, 212, 255, 0.05);
+  background: color-mix(in srgb, var(--hm-accent) 5%, transparent);
 }
 
 .hm-segmented__item--active {
-  background: rgba(0, 212, 255, 0.12);
+  background: color-mix(in srgb, var(--hm-accent) 12%, transparent);
   color: var(--hm-accent);
 }
 

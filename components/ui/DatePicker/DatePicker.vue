@@ -160,13 +160,13 @@ const onPick = (value: Date | Date[] | null) => {
   border-radius: 8px;
   background: var(--hm-bg);
   border-color: var(--hm-border);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--hm-font-body);
   font-size: 12px;
   line-height: 1;
 }
 
 .hm-date-picker :deep(.dp__input:hover) {
-  border-color: rgba(0, 212, 255, 0.3); /* --hm-accent @ 30% */
+  border-color: color-mix(in srgb, var(--hm-accent) 30%, transparent); /* --hm-accent @ 30% */
 }
 
 .hm-date-picker :deep(.dp__input_focus) {
@@ -202,19 +202,19 @@ const onPick = (value: Date | Date[] | null) => {
 .dp__theme_dark {
   --dp-background-color: var(--hm-surface);
   --dp-text-color: var(--hm-text);
-  --dp-hover-color: rgba(0, 212, 255, 0.08);
+  --dp-hover-color: color-mix(in srgb, var(--hm-accent) 8%, transparent);
   --dp-hover-text-color: var(--hm-accent);
   --dp-primary-color: var(--hm-accent);
-  --dp-primary-text-color: #0a0e17; /* mirrors `.hm-btn--primary` text — manifest § 7.3 */
+  --dp-primary-text-color: var(--hm-on-accent); /* mirrors `.hm-btn--primary` text — manifest § 7.3 */
   --dp-secondary-color: var(--hm-muted);
   --dp-border-color: var(--hm-border);
   --dp-menu-border-color: var(--hm-border);
-  --dp-border-color-hover: rgba(0, 212, 255, 0.3);
+  --dp-border-color-hover: color-mix(in srgb, var(--hm-accent) 30%, transparent);
   --dp-disabled-color: var(--hm-muted);
   --dp-scroll-bar-background: transparent;
   --dp-scroll-bar-color: var(--hm-border);
   --dp-success-color: var(--hm-accent);
   --dp-icon-color: var(--hm-muted);
-  --dp-font-family: 'JetBrains Mono', monospace;
+  --dp-font-family: var(--hm-font-body);
 }
 </style>

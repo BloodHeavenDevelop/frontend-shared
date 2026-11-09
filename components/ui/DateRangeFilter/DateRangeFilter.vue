@@ -245,7 +245,7 @@ const hasValue = computed(() => internal.value !== null);
   background: var(--hm-bg);
   color: var(--hm-muted);
   font-size: 12px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--hm-font-body);
   cursor: pointer;
   transition:
     border-color 0.15s,
@@ -254,12 +254,12 @@ const hasValue = computed(() => internal.value !== null);
 }
 
 .hm-date-range-trigger:hover {
-  border-color: rgba(0, 212, 255, 0.3);
+  border-color: color-mix(in srgb, var(--hm-accent) 30%, transparent);
 }
 
 .hm-date-range-trigger--active {
   color: var(--hm-text);
-  border-color: rgba(0, 212, 255, 0.3);
+  border-color: color-mix(in srgb, var(--hm-accent) 30%, transparent);
 }
 
 .hm-date-range-trigger__label {
@@ -273,7 +273,7 @@ const hasValue = computed(() => internal.value !== null);
 }
 
 .hm-date-range-trigger__clear:hover {
-  background: rgba(0, 212, 255, 0.15);
+  background: color-mix(in srgb, var(--hm-accent) 15%, transparent);
 }
 
 .hm-date-range-presets {
@@ -293,7 +293,7 @@ const hasValue = computed(() => internal.value !== null);
   background: transparent;
   color: var(--hm-muted);
   font-size: 12px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--hm-font-body);
   cursor: pointer;
   transition:
     background 0.15s,
@@ -301,7 +301,7 @@ const hasValue = computed(() => internal.value !== null);
 }
 
 .hm-date-range-presets__item:hover {
-  background: rgba(0, 212, 255, 0.08);
+  background: color-mix(in srgb, var(--hm-accent) 8%, transparent);
   color: var(--hm-accent);
 }
 
@@ -324,19 +324,19 @@ const hasValue = computed(() => internal.value !== null);
 .dp__theme_dark {
   --dp-background-color: var(--hm-surface);
   --dp-text-color: var(--hm-text);
-  --dp-hover-color: rgba(0, 212, 255, 0.08);
+  --dp-hover-color: color-mix(in srgb, var(--hm-accent) 8%, transparent);
   --dp-hover-text-color: var(--hm-accent);
   --dp-primary-color: var(--hm-accent);
-  --dp-primary-text-color: #0a0e17; /* mirrors `.hm-btn--primary` text — manifest § 7.3 */
+  --dp-primary-text-color: var(--hm-on-accent); /* mirrors `.hm-btn--primary` text — manifest § 7.3 */
   --dp-secondary-color: var(--hm-muted);
   --dp-border-color: var(--hm-border);
   --dp-menu-border-color: var(--hm-border);
-  --dp-border-color-hover: rgba(0, 212, 255, 0.3);
+  --dp-border-color-hover: color-mix(in srgb, var(--hm-accent) 30%, transparent);
   --dp-disabled-color: var(--hm-muted);
   --dp-scroll-bar-background: transparent;
   --dp-scroll-bar-color: var(--hm-border);
   --dp-success-color: var(--hm-accent);
   --dp-icon-color: var(--hm-muted);
-  --dp-font-family: 'JetBrains Mono', monospace;
+  --dp-font-family: var(--hm-font-body);
 }
 </style>

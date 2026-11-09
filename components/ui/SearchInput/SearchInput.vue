@@ -77,7 +77,7 @@ const onClear = () => {
   border-radius: 8px;
   color: var(--hm-text);
   font-size: 12px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--hm-font-body);
   outline: none;
   transition: border-color 0.15s;
 }
@@ -126,7 +126,7 @@ const onClear = () => {
 }
 
 .hm-search-input__clear:hover {
-  background: rgba(0, 212, 255, 0.08);
+  background: color-mix(in srgb, var(--hm-accent) 8%, transparent);
   color: var(--hm-accent);
 }
 

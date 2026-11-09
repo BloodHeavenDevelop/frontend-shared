@@ -135,7 +135,7 @@ const onPrevious = () => {
   background: var(--hm-surface);
   border: 1px solid var(--hm-border);
   border-radius: 6px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--hm-font-body);
   font-size: 12px;
   color: var(--hm-text);
   cursor: pointer;
@@ -143,14 +143,14 @@ const onPrevious = () => {
 }
 
 .hm-pg-btn:hover:not(:disabled) {
-  background: rgba(0, 212, 255, 0.08);
-  border-color: rgba(0, 212, 255, 0.3);
+  background: color-mix(in srgb, var(--hm-accent) 8%, transparent);
+  border-color: color-mix(in srgb, var(--hm-accent) 30%, transparent);
   color: var(--hm-accent);
 }
 
 .hm-pg-btn--active {
   background: var(--hm-accent) !important;
-  color: #0a0e17 !important;
+  color: var(--hm-on-accent) !important;
   border-color: var(--hm-accent) !important;
 }
 

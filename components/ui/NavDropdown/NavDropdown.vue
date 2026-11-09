@@ -160,7 +160,7 @@ onBeforeUnmount(() => {
   background: var(--hm-surface);
   border: 1px solid var(--hm-border);
   border-radius: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--hm-shadow) 40%, transparent);
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -171,7 +171,7 @@ onBeforeUnmount(() => {
   display: block;
   padding: 8px 12px;
   border-radius: 6px;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--hm-font-body);
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.5px;
@@ -184,12 +184,12 @@ onBeforeUnmount(() => {
 }
 
 .hm-nav-dropdown__item:hover {
-  background: rgba(0, 212, 255, 0.08);
+  background: color-mix(in srgb, var(--hm-accent) 8%, transparent);
   color: var(--hm-accent);
 }
 
 .hm-nav-dropdown__item--active {
-  background: rgba(0, 212, 255, 0.08);
+  background: color-mix(in srgb, var(--hm-accent) 8%, transparent);
   color: var(--hm-accent);
 }
 </style>

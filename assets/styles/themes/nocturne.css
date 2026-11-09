@@ -1,0 +1,49 @@
+/* ============================================
+   Theme: Nocturne — the platform's original dark palette
+   ============================================
+
+   A theme is one block of `--hm-*` values keyed by `data-theme` on <html>.
+   Every rule in hm-base.css and every `components/ui/*` style reads colours and
+   typefaces through these tokens only, so a theme never touches a selector.
+
+   Nocturne is the default: it also answers on a bare `:root`, so a page with no
+   `data-theme` (or with an id no theme defines) renders exactly as before themes
+   existed. Theme ids live in `composables/use-theme.ts` (THEMES).
+   ============================================ */
+@layer base {
+  :root,
+  :root[data-theme='nocturne'] {
+    color-scheme: dark;
+
+    /* Surfaces & text */
+    --hm-bg: #080c10;
+    --hm-surface: #0d1117;
+    --hm-border: #1c2333;
+    --hm-accent: #00d4ff;
+    --hm-text: #e6edf3;
+    --hm-muted: #8b949e;
+
+    /* Status colors */
+    --hm-ok: #10b981;
+    --hm-error: #ef4444;
+    --hm-active: #3b82f6;
+    --hm-paused: #6b7280;
+    --hm-paused-l: #9ca3af;
+    --hm-warning: #f59e0b;
+    --hm-purple: #7c3aed;
+    --hm-purple-l: #a78bfa;
+
+    /* Text on an accent fill (primary button, picked calendar day) */
+    --hm-on-accent: #0a0e17;
+    /* The 8px viewport bezel around <body> (manifest § 2) */
+    --hm-bezel: #000000;
+    /* Shadow ink — mixed down per use (`color-mix(… var(--hm-shadow) 40% …)`) */
+    --hm-shadow: #000000;
+    /* Backdrop behind modals and sheets */
+    --hm-overlay: rgb(0 0 0 / 0.6);
+
+    /* Typefaces */
+    --hm-font-body: 'JetBrains Mono', monospace;
+    --hm-font-display: 'Syne', sans-serif;
+  }
+}

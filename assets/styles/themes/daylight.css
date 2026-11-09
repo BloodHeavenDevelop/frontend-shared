@@ -1,0 +1,48 @@
+/* ============================================
+   Theme: Daylight — the light palette
+   ============================================
+
+   Generalised from the two light back-office products of the SwitchCase family
+   (tokenizer-crm and tokenizer-bi): a cool off-white page, white surfaces with a
+   hairline grey border, near-black slate text, the blue both of them use for their
+   primary action, the red they share for errors, and the system sans-serif they
+   both set their text in. Status colours are one step darker than Nocturne's so
+   they keep their contrast on white.
+
+   Same token set as `nocturne.css` — a theme overrides values, never selectors.
+   ============================================ */
+@layer base {
+  :root[data-theme='daylight'] {
+    color-scheme: light;
+
+    /* Surfaces & text */
+    --hm-bg: #f5f7fb;
+    --hm-surface: #ffffff;
+    --hm-border: #e3e6ec;
+    --hm-accent: #2563eb;
+    --hm-text: #1f2937;
+    --hm-muted: #6b7280;
+
+    /* Status colors */
+    --hm-ok: #16a34a;
+    --hm-error: #d64545;
+    --hm-active: #3b82f6;
+    --hm-paused: #9ca3af;
+    --hm-paused-l: #6b7280;
+    --hm-warning: #d97706;
+    --hm-purple: #7c3aed;
+    --hm-purple-l: #6d28d9;
+
+    --hm-on-accent: #ffffff;
+    --hm-bezel: #e8ebf1;
+    /* Slate ink at 30%: the `… 40%` mixes the rules use land on the soft 12%
+       shadows tokenizer-bi draws under its cards. */
+    --hm-shadow: rgb(15 23 42 / 0.3);
+    --hm-overlay: rgb(15 23 42 / 0.35);
+
+    --hm-font-body:
+      -apple-system, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --hm-font-display:
+      -apple-system, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+}

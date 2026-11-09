@@ -1,6 +1,6 @@
 {
   "name": "@bloodheaven/frontend-shared",
-  "version": "0.15.0",
+  "version": "0.16.0",
   "description": "Shared Nuxt-layer BloodHeaven: canonical UI-primitives design-system (.hm-*)",
   "type": "module",
   "private": false,
@@ -9,6 +9,7 @@
     "components",
     "composables",
     "pages",
+    "theme",
     "public",
     "app.config.ts",
     "nuxt.config.ts"
@@ -20,7 +21,8 @@
     "./assets/*": "./assets/*",
     "./components/*": "./components/*",
     "./composables/*": "./composables/*",
-    "./pages/*": "./pages/*"
+    "./pages/*": "./pages/*",
+    "./theme/*": "./theme/*"
   },
   "peerDependencies": {
     "@nuxt/ui": "^4.11.0",
