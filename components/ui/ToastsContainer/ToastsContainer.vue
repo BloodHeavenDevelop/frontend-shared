@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import Toast from '../Toast/Toast.vue';
 import { useToasts } from '../ToastsContainer/composables';
+import { toastLines } from '../ToastsContainer/toast-lines';
 
 const { toasts, remove } = useToasts();
 </script>
@@ -28,16 +29,25 @@ const { toasts, remove } = useToasts();
         <template
           v-if="toast.title"
           #title
-          ><p
-            class="text-hm-text text-[13px] font-semibold"
-            v-html="toast.title"
-          />
+          ><p class="text-hm-text text-[13px] font-semibold">
+            <template
+              v-for="(line, index) in toastLines(toast.title)"
+              :key="index"
+              ><br v-if="index > 0" />{{ line }}</template
+            >
+          </p>
         </template>
         <template
           v-if="toast.description"
           #description
-          ><p v-html="toast.description"
-        /></template>
+          ><p>
+            <template
+              v-for="(line, index) in toastLines(toast.description)"
+              :key="index"
+              ><br v-if="index > 0" />{{ line }}</template
+            >
+          </p></template
+        >
       </component>
     </TransitionGroup>
     <div
